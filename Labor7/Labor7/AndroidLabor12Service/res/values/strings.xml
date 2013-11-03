@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">Földrengések</string>
+  <string name="quake_feed">http://earthquake.usgs.gov/eqcenter/catalogs/1day-M2.5.xml</string>
+  <string name="menu_update">Azonnali frissítés</string>
+  <string name="auto_update_prompt">Automatikus frissítés?</string>
+  <string name="update_freq_prompt">Frissítés gyakorisága</string>
+  <string name="min_quake_mag_prompt">Minimális erősség</string>
+  <string name="menu_preferences">Beállítások</string>
+  <string name="menu_earthquake_map">Földrengések térképen</string>
+  <string name="notification_tickertext">Új földrengés!</string>
+  
+  
+</resources>

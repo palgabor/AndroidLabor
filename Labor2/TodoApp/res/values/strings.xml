@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Todo list</string>
+    
+    <string name="itemCreateTodo">Create new Todo</string>
+    
+    <string name="lblTodoTitle">Title:</string>
+    <string name="lblTodoPriority">Priority:</string>
+    <string name="lblTodoDueDate">Due date:</string>
+    <string name="lblTodoDescription">Description:</string>
+    
+    <string name="btnOk">OK</string>
+    <string name="btnCancel">Cancel</string>
+    
+    <string name="title_activity_activity_main">TodoApp</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+</resources>

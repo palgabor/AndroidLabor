@@ -1,0 +1,163 @@
+2.2.1 a
+
+public void writeToParcel(Parcel dest, int flags) {
+dest.writeString(title);
+dest.writeString(priority == null ? null : priority.name());
+dest.writeString(dueDate);
+dest.writeString(description);
+}
+
+
+2.2.1 b
+
+public static final Parcelable.Creator<Todo> CREATOR = new Parcelable.Creator<Todo>() {
+public Todo createFromParcel(Parcel in) {
+return new Todo(in);
+}
+public Todo[] newArray(int size) {
+return new Todo[size];
+}
+};
+
+
+2.2.1 c
+
+public Todo(Parcel in){
+this.title = in.readString();
+String priorityName = in.readString();
+if(priorityName != null)
+this.priority= Priority.valueOf(priorityName);
+this.dueDate = in.readString();
+this.description= in.readString();
+}
+
+
+2.2.1 d
+
+public static TodoDetailsFragment newInstance(Todo todo) {
+TodoDetailsFragment result = new TodoDetailsFragment();
+Bundle args = new Bundle();
+args.putParcelable(KEY_TODO, todo);
+result.setArguments(args);
+return result;
+}
+
+
+2.2.1 e
+
+@Override
+public void onCreate(Bundle savedInstanceState) {
+super.onCreate(savedInstanceState);
+if (savedInstanceState == null) {
+if (getArguments() != null) {
+selectedTodo =
+getArguments().getParcelable(KEY_TODO);
+}
+}
+}
+
+
+2.2.1 f
+
+@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container,
+Bundle savedInstanceState) {
+View root = inflater.inflate(
+R.layout.fragment_todo_details,
+container,
+false);
+todoDescription = (TextView) root.findViewById(R.id.todoDescription);
+todoDescription.setText(Html.fromHtml(
+"<h3>"+selectedTodo.getTitle()+"</h3>"
++selectedTodo.getDescription()
+));
+return root;
+}
+
+*************************************************************************
+
+2.3.3
+
+OnClickListener callEmergency = new OnClickListener() {
+public void onClick(View v) {
+String phoneNumber = "tel:";
+/* *
+* T-Home hibabejelento: 1412
+* Invitel hibabejelento: 1445
+* Digi hibabejelento: 1272
+* */
+switch (v.getId()) {
+case R.id.call112Btn:
+phoneNumber += "112";
+break;
+// TODO: a tobbi gomb lenyomasanak kezelese
+default:
+break;
+}
+// szam felhivasa
+Intent i = new Intent(
+Intent.ACTION_CALL,
+Uri.parse(phoneNumber)
+);
+startActivity(i);
+}
+};
+
+*************************************************************************
+
+2.4.3
+
+if(intent.getAction().
+equalsIgnoreCase("android.provider.Telephony.SMS_RECEIVED")){
+// 'pdus' nevu extraban egy Object tombot kapunk, amibol kinyerheto az sms
+Object[] pdus = (Object[]) intent.getExtras().get("pdus");
+if(pdus == null){
+Log.e("RECEIVER", "pdus are null");
+}
+else{
+Log.v("RECEIVER",
+"received " + pdus.length + " messages");
+SmsMessage msg = null;
+// Object tombot kaptunk, vegigmegyunk rajta
+for (Object pdu : pdus) {
+// a konkret SMS kinyerese
+msg = SmsMessage.createFromPdu((byte[])pdu);
+if(msg != null){
+showToast(
+context,
+"Message from "
++msg.getOriginatingAddress()+": "
++msg.getDisplayMessageBody());
+}
+else{
+Log.e("RECEIVER", "Sms is null");
+}
+}
+}
+}
+
+*************************************************************************
+
+2.5.5
+
+/**
+* Segedosztaly ami inditja a kattintott alkalmazast
+*/
+private class ApplicationLauncher implements AdapterView.OnItemClickListener {
+public void onItemClick(AdapterView parent, View v, int position, long id) {
+ApplicationInfo app = (ApplicationInfo) parent.getItemAtPosition(position);
+startActivity(app.intent);
+}
+}
+
+*************************************************************************
+
+2.5.6
+
+@Override
+public void onCreate(Bundle savedInstanceState) {
+super.onCreate(savedInstanceState);
+setContentView(R.layout.main);
+loadApplications();
+bindApplications();
+}

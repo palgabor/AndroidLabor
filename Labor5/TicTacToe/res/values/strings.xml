@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Main Activity  -->
+    <string name="app_name">TicTacToe</string>
+    <string name="action_settings">Settings</string>
+    <string name="welcome">Welcome in Tic Tac To Game!</string>
+    <string name="single">Start single player game</string>
+    <string name="multi">Start multiplayer game</string>
+    <string name="exit">Quit</string>
+    <string name="first_player">Add first player name:</string>
+    <string name="second_player">Add second player name:</string>
+	<string name="who_starts">Who starts?</string>
+	<string name="first_player_starts">First player</string>
+	<string name="second_player_starts">Second player</string>
+	<string name="start">Start</string>
+	<string name="empty">Shouldn\'t be empty</string>
+	<string name="player">Player</string>
+	
+	
+	<!-- Game Activity -->
+	<string name="quit_game">Quit from game</string>
+	<string name="next_player">Next player is: </string>
+	<string name="computer">Computer</string>
+	
+	<!-- Result Activity -->
+	<string name="result_win"> won the game.</string>
+	<string name="result_draw">The game is draw.</string>
+	<string name="ok">Ok</string>
+	
+</resources>

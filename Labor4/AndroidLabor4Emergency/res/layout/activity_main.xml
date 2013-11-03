@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical" >
+ 
+	<TextView
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center_horizontal"
+		android:text="Nyugodjon meg!"
+		android:textSize="20dp" />
+ 
+	<Button
+		android:id="@+id/call112Btn"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:layout_weight="1"
+		android:drawableTop="@drawable/call112"
+		android:text="112 felhívása"
+		android:textSize="20dp" />
+ 
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:layout_weight="1"
+		android:orientation="horizontal"
+		android:paddingTop="20dp" >
+		 
+	<Button
+		android:id="@+id/thomeBtn"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:layout_weight="1"
+		android:drawableTop="@drawable/t_home"
+		android:text="T-Home hibabejelentő" />
+ 
+	<Button
+		android:id="@+id/invitelBtn"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:layout_weight="1"
+		android:drawableTop="@drawable/invitel_logo"
+		android:text="Invitel hibabejelentő" />
+		 
+	<Button
+		android:id="@+id/digiBtn"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:layout_weight="1"
+		android:drawableTop="@drawable/digi_logo"
+		android:text="Digi hibabejelentő" />
+		</LinearLayout>
+ 
+</LinearLayout>

@@ -1,0 +1,13 @@
+<resources>
+    
+    <string name="app_name">Labor1</string>
+    <string name="popup_name">PopUp dialog</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="show1">Show Activity 1</string>
+    <string name="show2">Show Activity 2</string>
+    <string name="show3">PopUp Activity 3</string>
+    <string name="show2from3">Show activity 2</string>
+    <string name="menu_exit">Exit</string>
+    <string name="err_personal_id_not_empty">You have to fill this field before you would like to go to the next activity.</string>
+</resources>

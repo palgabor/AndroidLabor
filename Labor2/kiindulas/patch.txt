@@ -1,0 +1,565 @@
+3.1.1
+
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Todo list</string>
+    
+    <string name="itemCreateTodo">Create new Todo</string>
+    
+    <string name="lblTodoTitle">Title:</string>
+    <string name="lblTodoPriority">Priority:</string>
+    <string name="lblTodoDueDate">Due date:</string>
+    <string name="lblTodoDescription">Description:</string>
+    
+    <string name="btnOk">Ok</string>
+    <string name="btnCancel">Cancel</string>
+</resources>
+
+
+3.1.2
+
+public class Todo {
+	public enum Priority { LOW, MEDIUM, HIGH }
+	
+	private String title;
+	private Priority priority;
+	private String dueDate;
+	private String description;
+	
+	public Todo(String aTitle, Priority aPriority, 
+       String aDueDate, String aDescription)
+	{
+		title = aTitle;
+		priority = aPriority;
+		dueDate = aDueDate;
+		description = aDescription;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public Priority getPriority() {
+		return priority;
+	}
+
+	public String getDueDate() {
+		return dueDate;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+}
+
+3.1.3. a
+
+public class TodoAdapter extends BaseAdapter {
+
+    private final List<Todo> todos;
+
+    public TodoAdapter(final Context context, final ArrayList<Todo> aTodos) {
+    	todos = aTodos;
+    }
+    
+    public void addItem(Todo aTodo)
+    {
+    	todos.add(aTodo);
+    }
+
+    public int getCount() {
+        return todos.size();
+    }
+
+    public Object getItem(int position) {
+        return todos.get(position);
+    }
+
+    public long getItemId(int position) {
+        return position;
+    }
+
+    /**
+     * Sor megjelenenítésének beállítása
+     */
+    public View getView(int position, View convertView, ViewGroup parent) {
+
+        final Todo todo = todos.get(position);
+
+        LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService(
+    		Context.LAYOUT_INFLATER_SERVICE);
+        View itemView = inflater.inflate(R.layout.todorow, null);
+
+        ImageView imageViewIcon = (ImageView) itemView.findViewById(R.id.imageViewPriority);
+        switch (todo.getPriority()) {
+			case LOW:
+				imageViewIcon.setImageResource(R.drawable.low);
+				break;
+			case MEDIUM:
+				imageViewIcon.setImageResource(R.drawable.medium);
+				break;
+			case HIGH:
+				imageViewIcon.setImageResource(R.drawable.high);
+				break;
+			default:
+				imageViewIcon.setImageResource(R.drawable.high);
+				break;
+		}
+        
+        TextView textViewTitle = (TextView) itemView.findViewById(R.id.textViewTitle);
+        textViewTitle.setText(todo.getTitle());
+        
+        TextView textViewDueDate = (TextView) itemView.findViewById(R.id.textViewDueDate);
+        textViewDueDate.setText(todo.getDueDate());
+        
+        return itemView;
+    }
+
+    /**
+     * Egye elem törlése
+     */
+    public void deleteRow(Todo aTodo) {
+        if(todos.contains(aTodo)) {
+        	todos.remove(aTodo);
+        }
+    }
+}
+
+3.1.3. b
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="horizontal"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content">
+
+    <ImageView
+    	android:id="@+id/imageViewPriority"
+    	android:layout_height="wrap_content"
+    	android:layout_width="wrap_content"
+    	android:src="@drawable/high"
+    	android:padding="5dp"/>
+    	    
+    <RelativeLayout
+    	android:layout_height="wrap_content"
+    	android:layout_width="fill_parent">
+    	
+	    <TextView
+	    	android:id="@+id/textViewTitle"
+	    	android:textSize="16dp"
+	    	android:text="Title"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:layout_alignParentTop="true"/>
+	        
+	    <TextView
+	    	android:id="@+id/textViewDueDate"
+	    	android:textSize="12dp"
+	    	android:text="DueDate"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:layout_below="@id/textViewTitle"
+	    	android:layout_alignParentBottom="true"
+	    	android:gravity="bottom"/>
+   	</RelativeLayout>
+
+</LinearLayout>
+
+3.1.4
+
+public class ActivityMain extends ListActivity {
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        // Adapter létrehozása és feltöltése néhány elemmel
+        ArrayList<Todo> todos = new ArrayList<Todo>();
+        todos.add(new Todo("title1", Priority.LOW, "2011. 09. 26.", "description1"));
+        todos.add(new Todo("title2", Priority.MEDIUM, "2011. 09. 27.", "description2"));
+        todos.add(new Todo("title3", Priority.HIGH, "2011. 09. 28.", "description2"));
+        TodoAdapter todoAdapter = new TodoAdapter(
+                getApplicationContext(), todos);
+        setListAdapter(todoAdapter);
+        
+        // Elem kattintás eseményre feliratkozás - description megjelenítése
+        getListView().setOnItemClickListener(new OnItemClickListener() {
+        	public void onItemClick(AdapterView parent, View v, int position, long id) {
+        		Todo selectedTodo = (Todo)getListAdapter().getItem(position);
+        		Toast.makeText(ActivityMain.this, selectedTodo.getDescription(), Toast.LENGTH_LONG).show();
+        	}
+		});
+    }
+}
+
+3.2 a
+
+@Override
+public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+	if (v.equals(getListView())) {
+		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+		menu.setHeaderTitle(((Todo)getListAdapter().getItem(info.position)).getTitle());
+		String[] menuItems = getResources().getStringArray(R.array.todomenu);
+		for (int i = 0; i<menuItems.length; i++) {
+			menu.add(Menu.NONE, i, i, menuItems[i]);
+		}
+	}
+}
+
+@Override
+public boolean onContextItemSelected(MenuItem item) {
+	AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+	int menuItemIndex = item.getItemId();
+	if (menuItemIndex==0)
+	{
+		((TodoAdapter)getListAdapter()).deleteRow((Todo)getListAdapter().getItem(info.position));
+		((TodoAdapter)getListAdapter()).notifyDataSetChanged();
+	}
+	return true;
+}
+
+3.2. b
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array
+        name="todomenu">
+        <item>Delete</item>
+        <item>Back</item>
+    </string-array>
+</resources>
+
+3.3
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="horizontal"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content">
+
+    <ImageView
+    	android:id="@+id/imageViewPriority"
+    	android:layout_height="wrap_content"
+    	android:layout_width="wrap_content"
+    	android:src="@drawable/high"
+    	android:padding="5dp"/>
+    	    
+    <LinearLayout
+    	android:layout_height="wrap_content"
+    	android:layout_width="fill_parent"
+    	android:orientation="horizontal">
+    	
+	    <TextView
+	    	android:id="@+id/textViewTitle"
+	    	android:textSize="16dp"
+	    	android:text="Title"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"/>
+	        
+	    <TextView
+	    	android:id="@+id/textViewDueDate"
+	    	android:textSize="12dp"
+	    	android:text="DueDate"
+	    	android:paddingLeft="10dp"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"/>
+   	</LinearLayout>
+
+</LinearLayout>
+
+3.4.1 a
+
+@Override
+public boolean onCreateOptionsMenu(Menu menu) {
+    MenuInflater inflater = getMenuInflater();
+    inflater.inflate(R.menu.listmenu, menu);
+    return true;
+}
+
+@Override
+public boolean onOptionsItemSelected(MenuItem item) {
+	
+	if (item.getItemId() == R.id.itemCreateTodo)
+	{
+		Intent myIntent = new Intent();
+		myIntent.setClassName("hu.bute.daai.amorg.examples",
+		    "hu.bute.daai.amorg.examples.ActivityCreateTodo");
+		startActivity(myIntent);
+	}
+
+	return super.onOptionsItemSelected(item);
+}
+
+3.3.1 b
+
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/itemCreateTodo"
+          android:title="@string/itemCreateTodo"/>
+</menu>
+
+3.4.2 a
+
+<activity android:name=".ActivityCreateTodo"
+          android:label="@string/itemCreateTodo"
+          android:theme="@android:style/Theme.Dialog">
+</activity>
+
+3.4.2 b
+
+public class ActivityCreateTodo extends Activity {
+	
+	private static final int DATE_DUE_DIALOG_ID = 1;
+	
+	private Calendar calSelectedDate = Calendar.getInstance();
+	
+	private EditText editTodoTitle;
+	private Spinner spnrTodoPriority;
+	private TextView txtDueDate;
+	private EditText editTodoDescription;
+	
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.createtodo);
+        
+        // aktuális dátum beállítása
+        calSelectedDate.setTime(new Date(System.currentTimeMillis()));
+
+        // UI elem referenciák elkérése
+        editTodoTitle = (EditText)this.findViewById(R.id.todoTitle);
+        
+        spnrTodoPriority = (Spinner)this.findViewById(R.id.todoPriority);
+        String[] priorities=new String[3];
+        priorities[0]="Low";
+        priorities[1]="Medium";
+        priorities[2]="High";
+        spnrTodoPriority.setAdapter(new ArrayAdapter(this,android.R.layout.simple_spinner_item, priorities));
+        
+        txtDueDate = (TextView)this.findViewById(R.id.todoDueDate);
+        refreshDateText();
+        txtDueDate.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {				
+				showDialog(DATE_DUE_DIALOG_ID);
+			}
+	    });
+        
+        editTodoDescription = (EditText)this.findViewById(R.id.todoDescription);
+        
+        // gomb eseménykezelõk beállítása
+        Button btnOk = (Button)findViewById(R.id.btnCreateTodo);
+        btnOk.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				Todo.Priority selectedPriority = Todo.Priority.LOW;
+				
+				switch (spnrTodoPriority.getSelectedItemPosition()) {
+					case 0:
+						selectedPriority = Todo.Priority.LOW;
+						break;
+					case 1:
+						selectedPriority = Todo.Priority.MEDIUM;
+						break;
+					case 2:
+						selectedPriority = Todo.Priority.HIGH;
+						break;
+					default:
+						break;
+				}
+				
+				// NAGYON RONDA MEGOLDÁS
+				// Intent elõadáson megmutatjuk a helyeset!
+				DataPreferences.todoToCreate = new Todo(
+						editTodoTitle.getText().toString(),
+						selectedPriority,
+						txtDueDate.getText().toString(),
+						editTodoDescription.getText().toString()
+				);
+
+				finish();
+			}
+		});
+        
+        Button btnCancel = (Button)findViewById(R.id.btnCancelCreateTodo);
+        btnCancel.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				DataPreferences.todoToCreate = null;
+				finish();
+			}
+		});
+    }
+    
+    private void refreshDateText()
+    {
+    	StringBuilder dateString = new StringBuilder();
+    	dateString.append(calSelectedDate.get(Calendar.YEAR));
+    	dateString.append(". ");
+    	dateString.append(calSelectedDate.get(Calendar.MONTH)+1);
+    	dateString.append(". ");
+    	dateString.append(calSelectedDate.get(Calendar.DAY_OF_MONTH));
+    	dateString.append(".");
+    	
+    	txtDueDate.setText(dateString.toString());
+    }
+    
+    @Override    
+    protected Dialog onCreateDialog(int id) 
+    {
+        switch (id) {
+            case DATE_DUE_DIALOG_ID:
+            {
+                return new DatePickerDialog(
+                    this, mDateSetListener, calSelectedDate.get(Calendar.YEAR),
+                    calSelectedDate.get(Calendar.MONTH), calSelectedDate.get(Calendar.DAY_OF_MONTH)); 
+            }
+        }
+        return null;    
+    }
+    
+    private DatePickerDialog.OnDateSetListener mDateSetListener =
+        new DatePickerDialog.OnDateSetListener() 
+        {
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                    int dayOfMonth) 
+            {
+            	// Új dátum beállítása
+            	calSelectedDate.set(Calendar.YEAR, year);
+            	calSelectedDate.set(Calendar.MONTH, monthOfYear);
+            	calSelectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            	refreshDateText();
+                removeDialog(DATE_DUE_DIALOG_ID);
+            }
+        };
+}
+
+3.4.2 c
+
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:stretchColumns="1">
+    <TableRow>
+        <TextView
+            android:layout_column="1"
+            android:text="@string/lblTodoTitle"
+            android:layout_width="wrap_content"
+            android:gravity="right"/>
+        <EditText
+        	android:id="@+id/todoTitle"
+            android:width="200dp"/>
+    </TableRow>
+    <TableRow>
+        <TextView
+            android:layout_column="1"
+            android:text="@string/lblTodoPriority"
+            android:layout_width="wrap_content"
+            android:gravity="right"/>
+        <Spinner
+        	android:id="@+id/todoPriority"
+            android:width="200dp"/>
+    </TableRow>
+    <TableRow>
+        <TextView
+            android:layout_column="1"
+            android:text="@string/lblTodoDueDate"
+            android:layout_width="wrap_content"
+            android:gravity="right"/>
+        <TextView
+            android:id="@+id/todoDueDate"
+            android:textSize="20dp"
+            android:width="200dp"
+            android:gravity="center"/>
+    </TableRow>
+    <TableRow>
+        <TextView
+            android:layout_column="1"
+            android:text="@string/lblTodoDescription"
+            android:layout_width="wrap_content"
+            android:gravity="right"/>
+        <EditText
+        	android:id="@+id/todoDescription"
+            android:width="200dp"/>
+    </TableRow>
+    
+	<TableRow>
+        <Button
+        	android:id="@+id/btnCreateTodo"
+            android:layout_column="1"
+            android:text="@string/btnOk"
+            android:layout_width="wrap_content"
+            android:gravity="right"/>
+        <Button
+        	android:id="@+id/btnCancelCreateTodo"
+            android:text="@string/btnCancel"
+            android:layout_width="wrap_content"
+            android:gravity="left"/>
+    </TableRow>
+</TableLayout>
+
+3.4.3 a
+
+public class DataPreferences {
+	public static Todo todoToCreate = null;
+}
+
+3.4.3 b
+
+// gomb eseménykezelõk beállítása
+Button btnOk = (Button)findViewById(R.id.btnCreateTodo);
+btnOk.setOnClickListener(new OnClickListener() {
+	public void onClick(View v) {
+		Todo.Priority selectedPriority = Todo.Priority.LOW;
+		
+		switch (spnrTodoPriority.getSelectedItemPosition()) {
+			case 0:
+				selectedPriority = Todo.Priority.LOW;
+				break;
+			case 1:
+				selectedPriority = Todo.Priority.MEDIUM;
+				break;
+			case 2:
+				selectedPriority = Todo.Priority.HIGH;
+				break;
+			default:
+				break;
+		}
+		
+		// NAGYON RONDA MEGOLDÁS
+		// Intent elõadáson megmutatjuk a helyeset!
+		DataPreferences.todoToCreate = new Todo(
+				editTodoTitle.getText().toString(),
+				selectedPriority,
+				txtDueDate.getText().toString(),
+				editTodoDescription.getText().toString()
+		);
+
+		finish();
+	}
+});
+
+Button btnCancel = (Button)findViewById(R.id.btnCancelCreateTodo);
+btnCancel.setOnClickListener(new OnClickListener() {
+	public void onClick(View v) {
+		DataPreferences.todoToCreate = null;
+		finish();
+	}
+});
+
+3.4.3 c
+
+@Override
+protected void onResume() {
+	super.onResume();
+	
+	// NAGYON RONDA MEGOLDÁS
+	// Intent elõadáson megmutatjuk a helyeset!
+	if (DataPreferences.todoToCreate != null)
+	{
+	((TodoAdapter)getListAdapter()).addItem(DataPreferences.todoToCreate);
+		DataPreferences.todoToCreate = null;
+		((TodoAdapter)getListAdapter()).notifyDataSetChanged();
+	}
+}
+

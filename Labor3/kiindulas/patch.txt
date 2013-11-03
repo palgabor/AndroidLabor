@@ -1,0 +1,599 @@
+2.3.a
+
+@Override
+public void onCreate(Bundle savedInstanceState) {
+	super.onCreate(savedInstanceState);
+
+	setHasOptionsMenu(true);
+}
+
+--------------------------------------------------------------------------------------
+
+2.3.b
+
+@Override
+public void onStart() {
+	super.onStart();
+
+	// Adapter letrehozasa es feltoltese nehany elemmel
+	ArrayList<Todo> todos = new ArrayList<Todo>();
+	todos.add(new Todo("title1", Priority.LOW, "2011. 09. 26.",
+			"description1"));
+	todos.add(new Todo("title2", Priority.MEDIUM, "2011. 09. 27.",
+			"description2"));
+	todos.add(new Todo("title3", Priority.HIGH, "2011. 09. 28.",
+			"description3"));
+	adapter = new TodoAdapter(getActivity(), todos);
+	setListAdapter(adapter);
+	
+	registerForContextMenu(getListView());
+}
+
+--------------------------------------------------------------------------------------
+
+2.3.c
+
+@Override
+public void onCreateContextMenu(ContextMenu menu, View v,
+		ContextMenuInfo menuInfo) {
+	if (v.equals(getListView())) {
+		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+		menu.setHeaderTitle(((Todo) getListAdapter().getItem(info.position))
+				.getTitle());
+		String[] menuItems = getResources()
+				.getStringArray(R.array.todomenu);
+		for (int i = 0; i < menuItems.length; i++) {
+			menu.add(Menu.NONE, i, i, menuItems[i]);
+		}
+	}
+}
+
+@Override
+public boolean onContextItemSelected(MenuItem item) {
+	AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
+			.getMenuInfo();
+	int menuItemIndex = item.getItemId();
+	if (menuItemIndex == 0) {
+		((TodoAdapter) getListAdapter()).deleteRow((Todo) getListAdapter()
+				.getItem(info.position));
+		((TodoAdapter) getListAdapter()).notifyDataSetChanged();
+	}
+	return true;
+}
+
+--------------------------------------------------------------------------------------
+
+2.3.d
+
+@Override
+public void onListItemClick(ListView l, View v, int position, long id) {
+	super.onListItemClick(l, v, position, id);
+
+	Todo selectedTodo = (Todo) getListAdapter().getItem(position);
+
+	if (listener != null) {
+		listener.onTodoSelected(selectedTodo);
+	}
+}
+
+--------------------------------------------------------------------------------------
+
+2.3.e
+
+public interface ITodoListFragment {
+	public void onTodoSelected(Todo selecedTodo);
+}
+
+--------------------------------------------------------------------------------------
+
+2.3.f
+
+@Override
+public void onAttach(Activity activity) {
+	super.onAttach(activity);
+
+	try {
+		listener = (ITodoListFragment) activity;
+	} catch (ClassCastException ce) {
+		Log.e(TAG, "Parent Activity does not implement listener interface!");
+	} catch (Exception e) {
+		Log.e(TAG, "Unexpected exception!");
+		e.printStackTrace();
+	}
+}
+
+--------------------------------------------------------------------------------------
+
+2.3.g
+
+// Log tag
+public static final String TAG = "TodoListFragment";
+
+// State
+private TodoAdapter adapter;
+
+// Listener
+private ITodoListFragment listener;
+
+--------------------------------------------------------------------------------------
+
+2.4.a
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal">
+    
+    <fragment class="hu.bute.daai.amorg.examples.fragment.TodoListFragment"
+        android:tag="TodoListFragment"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+    
+</LinearLayout>
+
+--------------------------------------------------------------------------------------
+
+2.4.b
+
+public class MainActivity extends FragmentActivity {
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+    }
+
+}
+
+--------------------------------------------------------------------------------------
+
+3.1-3.2.a
+
+public class TodoDetailsFragment extends Fragment {
+
+	public static final String TAG = "TodoDetailsFragment";
+
+	public static final String KEY_TODO_DESCRIPTION = "todoDesc";
+
+	private TextView todoDescription;
+
+	private static Todo selectedTodo;
+
+	public static TodoDetailsFragment newInstance(String todoDesc) {
+		TodoDetailsFragment result = new TodoDetailsFragment();
+
+		Bundle args = new Bundle();
+		args.putString(KEY_TODO_DESCRIPTION, todoDesc);
+		result.setArguments(args);
+
+		return result;
+	}
+	
+	public static TodoDetailsFragment newInstance(Bundle args) {
+		TodoDetailsFragment result = new TodoDetailsFragment();
+		
+		result.setArguments(args);
+		
+		return result;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		if (savedInstanceState == null) {
+			if (getArguments() != null) {
+				selectedTodo = new Todo("cim", Priority.LOW, "1987.23.12",
+						getArguments().getString(KEY_TODO_DESCRIPTION));
+			}
+		}
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View root = inflater.inflate(R.layout.fragment_todo_details, container,
+				false);
+
+		todoDescription = (TextView) root.findViewById(R.id.todoDescription);
+		todoDescription.setText(selectedTodo.getDescription());
+
+		return root;
+	}
+
+}
+
+--------------------------------------------------------------------------------------
+
+3.2.b
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+    
+    <TextView
+        android:id="@+id/todoDescription"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
+    
+</LinearLayout>
+
+--------------------------------------------------------------------------------------
+
+3.3.a
+public class ActivityMain extends FragmentActivity implements ITodoListFragment {
+
+	private ViewGroup fragmentContainer;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		setContentView(R.layout.activity_main);
+
+		fragmentContainer = (ViewGroup) findViewById(R.id.FragmentContainer);
+	}
+
+	// ITodoListFragment
+	public void onTodoSelected(Todo selectedTodo) {
+		if (fragmentContainer != null) {
+			FragmentManager fm = getSupportFragmentManager();
+
+			FragmentTransaction ft = fm.beginTransaction();
+			ft.replace(R.id.FragmentContainer, TodoDetailsFragment
+					.newInstance(selectedTodo.getDescription()));
+			ft.commit();
+		} else {
+			Intent i = new Intent(this, ActivityTodoDetails.class);
+			i.putExtra(TodoDetailsFragment.KEY_TODO_DESCRIPTION,
+					selectedTodo.getDescription());
+			startActivity(i);
+		}
+	}
+}
+
+--------------------------------------------------------------------------------------
+
+3.3.b
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal">
+    
+    <fragment class="hu.bute.daai.amorg.examples.fragment.TodoListFragment"
+        android:tag="TodoListFragment"
+        android:layout_width="0dip"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"/>
+    
+    <FrameLayout 
+        android:id="@+id/FragmentContainer"
+        android:layout_width="0dip"
+        android:layout_height="fill_parent"
+        android:layout_weight="2"/>
+    
+</LinearLayout>
+
+3.3.1.a
+
+--------------------------------------------------------------------------------------
+
+public class ActivityTodoDetails extends FragmentActivity {
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		setContentView(R.layout.activity_details);
+
+		if (savedInstanceState == null && getIntent().getExtras() != null) {
+			Bundle args = new Bundle(getIntent().getExtras());
+			TodoDetailsFragment detailsFragment = TodoDetailsFragment
+					.newInstance(args);
+			
+			// Add details fragment
+			FragmentManager fm = getSupportFragmentManager();
+			
+			FragmentTransaction ft = fm.beginTransaction();
+			ft.add(R.id.FragmentContainer, detailsFragment);
+			ft.commit();
+		}
+	}
+}
+
+--------------------------------------------------------------------------------------
+
+3.3.1.b
+
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/FragmentContainer"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" />
+
+--------------------------------------------------------------------------------------
+
+4.1.1
+
+@Override
+public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	inflater.inflate(R.menu.listmenu, menu);
+}
+
+@Override
+public boolean onOptionsItemSelected(MenuItem item) {
+
+	if (item.getItemId() == R.id.itemCreateTodo) {
+		TodoCreateFragment createFragment = new TodoCreateFragment();
+		createFragment.setTargetFragment(this, 0);
+
+		FragmentManager fm = getFragmentManager();
+		createFragment.show(fm, TodoCreateFragment.TAG);
+	}
+
+	return super.onOptionsItemSelected(item);
+}
+
+--------------------------------------------------------------------------------------
+
+4.1.2.a
+
+public class TodoCreateFragment extends DialogFragment {
+
+	// Log tag
+	public static final String TAG = "TodoCreateFragment";
+
+	// UI
+	private EditText editTodoTitle;
+	private Spinner spnrTodoPriority;
+	private TextView txtDueDate;
+	private EditText editTodoDescription;
+
+	// Listener
+	private ITodoCreateFragment listener;
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		if (getTargetFragment() != null) {
+			try {
+				listener = (ITodoCreateFragment) getTargetFragment();
+			} catch (ClassCastException ce) {
+				Log.e(TAG,
+						"Target Fragment does not implement fragment interface!");
+			} catch (Exception e) {
+				Log.e(TAG, "Unhandled exception!");
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				listener = (ITodoCreateFragment) activity;
+			} catch (ClassCastException ce) {
+				Log.e(TAG,
+						"Parent Activity does not implement fragment interface!");
+			} catch (Exception e) {
+				Log.e(TAG, "Unhandled exception!");
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View root = inflater.inflate(R.layout.createtodo, container, false);
+
+		// Dialog cimenek beallitasa
+		getDialog().setTitle(R.string.itemCreateTodo);
+
+		// UI elem referenciak elkerese
+		editTodoTitle = (EditText) root.findViewById(R.id.todoTitle);
+
+		spnrTodoPriority = (Spinner) root.findViewById(R.id.todoPriority);
+		String[] priorities = new String[3];
+		priorities[0] = "Low";
+		priorities[1] = "Medium";
+		priorities[2] = "High";
+		spnrTodoPriority.setAdapter(new ArrayAdapter<String>(getActivity(),
+				android.R.layout.simple_spinner_item, priorities));
+
+		txtDueDate = (TextView) root.findViewById(R.id.todoDueDate);
+		txtDueDate.setText("  -  ");
+		txtDueDate.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				//Itt jon a datumvalaszto
+			}
+		});
+
+		editTodoDescription = (EditText) root
+				.findViewById(R.id.todoDescription);
+
+		// A gombok esemenykezeloinek beallitasa
+		Button btnOk = (Button) root.findViewById(R.id.btnCreateTodo);
+		btnOk.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				Todo.Priority selectedPriority = Todo.Priority.LOW;
+
+				switch (spnrTodoPriority.getSelectedItemPosition()) {
+				case 0:
+					selectedPriority = Todo.Priority.LOW;
+					break;
+				case 1:
+					selectedPriority = Todo.Priority.MEDIUM;
+					break;
+				case 2:
+					selectedPriority = Todo.Priority.HIGH;
+					break;
+				default:
+					break;
+				}
+
+				if (listener != null) {
+					listener.onTodoCreated(new Todo(editTodoTitle.getText()
+							.toString(), selectedPriority, txtDueDate.getText()
+							.toString(), editTodoDescription.getText()
+							.toString()));
+				}
+
+				dismiss();
+			}
+		});
+
+		Button btnCancel = (Button) root.findViewById(R.id.btnCancelCreateTodo);
+		btnCancel.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				dismiss();
+			}
+		});
+
+		return root;
+	}
+
+
+	// Listener interface
+	public interface ITodoCreateFragment {
+		public void onTodoCreated(Todo newTodo);
+	}
+}
+
+--------------------------------------------------------------------------------------
+
+4.1.2.b
+
+public class TodoListFragment extends ListFragment implements
+		ITodoCreateFragment {
+...
+
+	// ITodoCreateFragment
+	public void onTodoCreated(Todo newTodo) {
+		adapter.addItem(newTodo);
+		adapter.notifyDataSetChanged();
+	}
+
+}
+
+--------------------------------------------------------------------------------------
+
+4.1.3.a
+
+public class DatePickerDialogFragment extends DialogFragment {
+
+	// Log tag
+	public static final String TAG = "DatePickerDialogFragment";
+
+	// State
+	private Calendar calSelectedDate = Calendar.getInstance();
+
+	// Listener
+	private IDatePickerDialogFragment listener;
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+
+		if (getTargetFragment() != null) {
+			try {
+				listener = (IDatePickerDialogFragment) getTargetFragment();
+			} catch (ClassCastException ce) {
+				Log.e(TAG,
+						"Target Fragment does not implement fragment interface!");
+			} catch (Exception e) {
+				Log.e(TAG, "Unhandled exception!");
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				listener = (IDatePickerDialogFragment) activity;
+			} catch (ClassCastException ce) {
+				Log.e(TAG,
+						"Parent Activity does not implement fragment interface!");
+			} catch (Exception e) {
+				Log.e(TAG, "Unhandled exception!");
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		calSelectedDate.setTime(new Date(System.currentTimeMillis()));
+	}
+
+	@Override
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		return new DatePickerDialog(getActivity(), mDateSetListener,
+				calSelectedDate.get(Calendar.YEAR),
+				calSelectedDate.get(Calendar.MONTH),
+				calSelectedDate.get(Calendar.DAY_OF_MONTH));
+	}
+
+	private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
+		public void onDateSet(DatePicker view, int year, int monthOfYear,
+				int dayOfMonth) {
+			// uj datum beallitasa
+			calSelectedDate.set(Calendar.YEAR, year);
+			calSelectedDate.set(Calendar.MONTH, monthOfYear);
+			calSelectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+			if (listener != null) {
+				listener.onDateSelected(buildDateText());
+			}
+
+			dismiss();
+		}
+	};
+
+	private String buildDateText() {
+		StringBuilder dateString = new StringBuilder();
+		dateString.append(calSelectedDate.get(Calendar.YEAR));
+		dateString.append(". ");
+		dateString.append(calSelectedDate.get(Calendar.MONTH) + 1);
+		dateString.append(". ");
+		dateString.append(calSelectedDate.get(Calendar.DAY_OF_MONTH));
+		dateString.append(".");
+
+		return dateString.toString();
+	}
+
+	public interface IDatePickerDialogFragment {
+		public void onDateSelected(String date);
+	}
+
+}
+
+--------------------------------------------------------------------------------------
+
+4.1.3.b
+
+public class TodoCreateFragment extends DialogFragment implements
+		IDatePickerDialogFragment {
+...
+	txtDueDate.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				showDatePickerDialog();
+			}
+		});
+...
+
+
+	private void showDatePickerDialog() {
+		FragmentManager fm = getFragmentManager();
+
+		DatePickerDialogFragment datePicker = new DatePickerDialogFragment();
+		datePicker.setTargetFragment(this, 0);
+		datePicker.show(fm, DatePickerDialogFragment.TAG);
+	}
+
+	// IDatePickerDialogFragment
+	public void onDateSelected(String date) {
+		txtDueDate.setText(date);
+	}
+}

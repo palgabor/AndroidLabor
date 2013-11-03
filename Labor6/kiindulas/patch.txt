@@ -1,0 +1,292 @@
+3.1 a
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+
+	public DatabaseHelper(Context context, String name, CursorFactory factory, int version) {
+		super(context, name, factory, version);
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public void onCreate(SQLiteDatabase db) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		// TODO Auto-generated method stub
+	}
+}
+
+
+3.1 b
+
+public class DbConstants {
+
+	// Broadcast Action, amely az adatbazis modosulasat jelzi
+	public static final String ACTION_DATABASE_CHANGED = "hu.bute.daai.amorg.examples.DATABASE_CHANGED";
+
+	// fajlnev, amiben az adatbazis lesz
+	public static final String DATABASE_NAME = "data.db";
+	// verzioszam
+	public static final int DATABASE_VERSION = 1;
+	// osszes belso osztaly DATABASE_CREATE szkriptje osszefuzve
+	public static String DATABASE_CREATE_ALL = Todo.DATABASE_CREATE;
+	// osszes belso osztaly DATABASE_DROP szkriptje osszefuzve
+	public static String DATABASE_DROP_ALL = Todo.DATABASE_DROP;
+
+	/* Todo osztaly DB konstansai */
+	public static class Todo {
+		// tabla neve
+		public static final String DATABASE_TABLE = "todo";
+		// oszlopnevek
+		public static final String KEY_ROWID = "_id";
+		public static final String KEY_TITLE = "title";
+		public static final String KEY_PRIORITY = "priority";
+		public static final String KEY_DUEDATE = "dueDate";
+		public static final String KEY_DESCRIPTION = "description";
+		// sema letrehozo szkript
+		public static final String DATABASE_CREATE = "create table if not exists "
+				+ DATABASE_TABLE
+				+ " ( "
+				+ KEY_ROWID
+				+ " integer primary key autoincrement, "
+				+ KEY_TITLE
+				+ " text not null, "
+				+ KEY_PRIORITY
+				+ " text, "
+				+ KEY_DUEDATE
+				+ " text, " + KEY_DESCRIPTION + " text" + "); ";
+		// sema torlo szkript
+		public static final String DATABASE_DROP = "drop table if exists "
+				+ DATABASE_TABLE + "; ";
+	}
+}
+
+3.1 c
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+
+	public DatabaseHelper(Context context, String name) {
+		super(context, name, null, DbConstants.DATABASE_VERSION);
+	}
+
+	@Override
+	public void onCreate(SQLiteDatabase db) {
+		db.execSQL(DbConstants.DATABASE_CREATE_ALL);
+	}
+
+	@Override
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		db.execSQL(DbConstants.DATABASE_DROP_ALL);
+		db.execSQL(DbConstants.DATABASE_CREATE_ALL);
+	}
+}
+
+3.1 d
+
+public class TodoDbLoader {
+	
+	private Context ctx;
+	private DatabaseHelper dbHelper;
+	private SQLiteDatabase mDb;
+	
+	public TodoDbLoader(Context ctx) {
+		this.ctx = ctx;
+	}
+	
+	public void open() throws SQLException{
+		// DatabaseHelper objektum
+		dbHelper = new DatabaseHelper(
+				ctx, DbConstants.DATABASE_NAME);
+		// adatbázis objektum
+		mDb = dbHelper.getWritableDatabase();
+		// ha nincs még séma, akkor létrehozzuk
+		dbHelper.onCreate(mDb);
+	}
+	
+	public void close(){
+		dbHelper.close();
+	}
+	// CRUD és egyéb metódusok
+}
+
+3.1 e
+
+// INSERT 
+	public long createTodo(Todo todo){
+		ContentValues values = new ContentValues();
+		values.put(DbConstants.Todo.KEY_TITLE, todo.getTitle());
+		values.put(DbConstants.Todo.KEY_DUEDATE, todo.getDueDate());
+		values.put(DbConstants.Todo.KEY_DESCRIPTION, todo.getDescription());
+		values.put(DbConstants.Todo.KEY_PRIORITY, todo.getPriority().name());
+		
+		return mDb.insert(DbConstants.Todo.DATABASE_TABLE, null, values);
+	}
+
+	// DELETE
+	public boolean deleteTodo(long rowId){
+		return mDb.delete(
+				DbConstants.Todo.DATABASE_TABLE, 
+				DbConstants.Todo.KEY_ROWID + "=" + rowId, 
+				null) > 0;
+	}
+
+	// UPDATE
+	public boolean updateProduct(long rowId, Todo newTodo){
+		ContentValues values = new ContentValues();
+		values.put(DbConstants.Todo.KEY_TITLE, newTodo.getTitle());
+		values.put(DbConstants.Todo.KEY_DUEDATE, newTodo.getDueDate());
+		values.put(DbConstants.Todo.KEY_DESCRIPTION, newTodo.getDescription());
+		values.put(DbConstants.Todo.KEY_PRIORITY, newTodo.getPriority().name());
+		return mDb.update(
+				DbConstants.Todo.DATABASE_TABLE, 
+				values, 
+				DbConstants.Todo.KEY_ROWID + "=" + rowId , 
+				null) > 0;
+	}
+
+3.1 f
+
+// minden Todo lekérése
+public Cursor fetchAll(){
+	// cursor minden rekordra (where = null)
+	return mDb.query(
+			DbConstants.Todo.DATABASE_TABLE, 
+			new String[]{ 
+					DbConstants.Todo.KEY_ROWID,
+					DbConstants.Todo.KEY_TITLE,
+					DbConstants.Todo.KEY_DESCRIPTION,
+					DbConstants.Todo.KEY_DUEDATE,
+					DbConstants.Todo.KEY_PRIORITY
+			}, null, null, null, null, DbConstants.Todo.KEY_TITLE);
+}
+
+// egy Todo lekérése
+public Todo fetchTodo(long rowId){
+	// a Todo-ra mutato cursor
+	Cursor c = mDb.query(
+			DbConstants.Todo.DATABASE_TABLE, 
+			new String[]{ 
+					DbConstants.Todo.KEY_ROWID,
+					DbConstants.Todo.KEY_TITLE,
+					DbConstants.Todo.KEY_DESCRIPTION,
+					DbConstants.Todo.KEY_DUEDATE,
+					DbConstants.Todo.KEY_PRIORITY
+			}, DbConstants.Todo.KEY_ROWID + "=" + rowId, 
+			null, null, null, DbConstants.Todo.KEY_TITLE);
+	// ha van rekord amire a Cursor mutat
+	if(c.moveToFirst())
+		return getTodoByCursor(c);
+	// egyebkent null-al terunk vissza
+	return null;
+}
+
+3.2 a
+
+public class TodoAdapter extends CursorAdapter {
+
+	public TodoAdapter(Context context, Cursor c) {
+		super(context, c, false);
+	}
+
+	@Override
+	public View newView(Context context, Cursor cursor, ViewGroup parent) {
+		final LayoutInflater inflater = LayoutInflater.from(context);
+		View row = inflater.inflate(R.layout.todorow, null);
+		bindView(row, context, cursor);
+		return row;
+	}
+	
+	// UI elemek feltöltése
+	@Override
+	public void bindView(View view, Context context, Cursor cursor) {
+		// referencia a UI elemekre
+		TextView titleTV = (TextView) view.findViewById(R.id.textViewTitle);
+		TextView dueDateTV = (TextView) view.findViewById(R.id.textViewDueDate);
+		ImageView priorityIV = (ImageView) view.findViewById(R.id.imageViewPriority);
+		
+		// Todo példányosítás Cursorból
+		Todo todo = TodoDbLoader.getTodoByCursor(cursor);
+		
+		// UI elemek
+		titleTV.setText(todo.getTitle());
+		dueDateTV.setText(todo.getDueDate());
+		switch (todo.getPriority()) {
+			case HIGH:
+				priorityIV.setImageResource(R.drawable.high);
+				break;
+			case MEDIUM:
+				priorityIV.setImageResource(R.drawable.medium);
+				break;
+			case LOW:
+				priorityIV.setImageResource(R.drawable.low);
+				break;
+		}
+		
+	}
+
+
+	@Override
+	public Todo getItem(int position) {
+		getCursor().moveToPosition(position);
+		
+		return TodoDbLoader.getTodoByCursor(getCursor());
+	}
+    
+}
+
+
+3.2 b
+
+public static Todo getTodoByCursor(Cursor c){
+	return new Todo(
+			c.getString(c.getColumnIndex(DbConstants.Todo.KEY_TITLE)), // title 
+			Priority.valueOf(c.getString(c.getColumnIndex(DbConstants.Todo.KEY_PRIORITY))), // priority 
+			c.getString(c.getColumnIndex(DbConstants.Todo.KEY_DUEDATE)), // dueDate 
+			c.getString(c.getColumnIndex(DbConstants.Todo.KEY_DESCRIPTION)) // description
+			);
+}
+
+
+3.3 
+
+public class TodoApplication extends Application {
+	private static TodoDbLoader dbLoader;
+
+	public static TodoDbLoader getTodoDbLoader() {
+		return dbLoader;
+	}
+
+	@Override
+	public void onCreate() {
+		super.onCreate();
+
+		dbLoader = new TodoDbLoader(this);
+		dbLoader.open();
+	}
+
+	@Override
+	public void onTerminate() {
+		// Close the internal db
+		dbLoader.close();
+		
+		super.onTerminate();
+	}
+}
+
+3.3 b
+
+	// Log tag
+	public static final String TAG = "TodoListFragment";
+
+	// State
+	private TodoAdapter adapter;
+	private LocalBroadcastManager lbm;
+
+	// Listener
+	private ITodoListFragment listener;
+
+	// DBloader
+	private TodoDbLoader dbLoader;
+	private GetAllTask getAllTask;
