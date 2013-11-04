@@ -50,7 +50,8 @@ public class EarthquakeService extends Service {
 	public IBinder onBind(Intent intent) {
 		// nem akarjuk mas alkalmazasbol elerhetove tenni
 		// (messze ez a leggyakoribb eset)
-		// TODO helyes visszateresi ertek beallitasa
+		// helyes visszateresi ertek beallitasa
+		return null;
 	}
 	
 	@Override
@@ -128,7 +129,7 @@ public class EarthquakeService extends Service {
 					// A foldrenges elemek listaja
 					NodeList entryList = docEle.getElementsByTagName("entry");
 					if (entryList != null && entryList.getLength() > 0) {
-						for (int i = 0; i < entryList.getLength(); i++) {
+						for (int i = 1; i < entryList.getLength(); i++) {
 							// XML elemek
 							Element entry = (Element) entryList.item(i);
 							Element title = (Element) entry.getElementsByTagName("title").item(0);
@@ -208,7 +209,8 @@ public class EarthquakeService extends Service {
 
 		@Override
 		protected void onPostExecute(Void result) {
-			// TODO Service megallitasa (ez akkor fut le, ha mar vegzett a feldolgozassal)
+			// Service megallitasa (ez akkor fut le, ha mar vegzett a feldolgozassal)
+			stopSelf();
 		}
 	}
 
@@ -247,7 +249,8 @@ public class EarthquakeService extends Service {
 		intent.putExtra("latitude", quake.getLocation().getLatitude());
 		intent.putExtra("magnitude", quake.getMagnitude());
 		
-		// TODO ertesitsuk a feliratkozott komponenseket az uj foldrengesrol
+		// ertesitsuk a feliratkozott komponenseket az uj foldrengesrol
+		sendBroadcast(intent);
 	}
 
 }

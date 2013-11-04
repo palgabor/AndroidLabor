@@ -57,5 +57,3 @@ boolean showSplash = true;
     	return true;
     }
 }
-
-//D7:F2:01:39:7D:DC:E4:EF:C4:D0:7C:65:02:F6:E6:D8:A3:96:12:F8

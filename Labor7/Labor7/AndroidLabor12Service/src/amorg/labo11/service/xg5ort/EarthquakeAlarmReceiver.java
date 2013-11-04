@@ -10,6 +10,11 @@ public class EarthquakeAlarmReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		// TODO implementacio
+		// implementacio
+		if(intent.getAction() == ACTION_REFRESH_EARTHQUAKE_ALARM)
+		{
+			Intent earthQuakeService = new Intent(context, EarthquakeService.class);
+			context.startService(earthQuakeService);
+		}
 	}
 }

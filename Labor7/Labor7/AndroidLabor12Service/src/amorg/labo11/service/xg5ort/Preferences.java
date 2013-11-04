@@ -1,5 +1,6 @@
 package amorg.labo11.service.xg5ort;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
@@ -14,5 +15,16 @@ public class Preferences extends PreferenceActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.userpreferences);
+	}
+	
+	@Override
+	public void onStop(){
+		super.onStop();
+		Bundle data = new Bundle();
+		data.putString("results", "");
+		Intent intent = new Intent();
+		intent.putExtras(data);
+		setResult(RESULT_OK, intent);
+		finish();
 	}
 }

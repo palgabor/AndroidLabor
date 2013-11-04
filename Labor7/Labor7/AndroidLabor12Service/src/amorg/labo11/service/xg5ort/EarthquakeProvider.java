@@ -20,7 +20,7 @@ public class EarthquakeProvider extends ContentProvider {
 
 	// publikus URI, amin elerheto a provider 
 	// ez alapjan kell kitolteni az AndroidManifest-ben az 'android:authorities' attributumot
-	public static final Uri EARTHQUAKEPROVIDER_CONTENT_URI = Uri.parse("content://amorg.labo11.provider.earthquake/earthquakes");
+	public static final Uri EARTHQUAKEPROVIDER_CONTENT_URI = Uri.parse("content://amorg.labo11.service.xg5ort.earthquake/earthquakes");
 
 	// UriMatcher segedosztaly hasznalata a bejovo Uri-k ellenorzesehez
 	// Ha az Uri vege 'earthquakes', akkor minden foldrengest vissza kell adnunk

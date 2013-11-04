@@ -45,7 +45,7 @@
 	              android:label="View Earthquakes"/>
 	    
 	    <provider android:name="EarthquakeProvider"
-          android:authorities="amorg.labo11.service.xg5ort.provider.earthquake" />
+          android:authorities="amorg.labo11.service.xg5ort.earthquake" />
 	    
 	    <service android:enabled="true" android:name="EarthquakeService"/>
     
@@ -60,7 +60,7 @@
 	    
 	     <meta-data
 	         android:name="com.google.android.maps.v2.API_KEY"
-	         android:value="AIzaSyBwQfz0Wp5XC97r_i0XXzizgL68I3_nICw"  
+	         android:value="AIzaSyBABuRSlBjvuCqW0reeS_VQ2pcnGwBmsk4"  
 	     />
 	    
     </application>

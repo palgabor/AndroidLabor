@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -11,11 +12,15 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -56,25 +61,25 @@ public class MainActivity extends Activity {
 		earthquakeListView.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView _av, View _v, int index, long arg3) {
 				selectedQuake = earthquakesList.get(index);
-				// TODO a dialogusablak megjelenitese a kovetkezo utasitas hatasara
+				// a dialogusablak megjelenitese a kovetkezo utasitas hatasara
 				showDialog(QUAKE_DIALOG);
 			}
 		});
-		
+
 		// ArrayAdapter a foldrengesek megjelenitesehez
 		quakeAdapter = new ArrayAdapter<Quake>(this, android.R.layout.simple_list_item_1, earthquakesList);
 		earthquakeListView.setAdapter(quakeAdapter);
-		
+
 		// referencia a NotificationManager-re
 		notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		
+
 		// betoltjuk a foldrengeseket a sajat ContentProvider-bol
 		loadQuakesFromProvider();
 		// frissitjuk a parametereket a beallitasok alapjan
 		updateFromPreferences();
 		// elinditjuk a Service-t
 		refreshEarthquakes();
-
+		
 	}
 	
 	// A kapott foldrengest hozzaadjuk az ArrayList-hez
@@ -82,7 +87,6 @@ public class MainActivity extends Activity {
 		// ha a foldrenges erossege a beallitasokban megadott ertek folott van 
 		// akkor hozzaadjuk az earthquakesList tombhoz, es ertesitjuk az Adaptert a valtozasrol
 		if(quake.getMagnitude() > minimumMagnitude) {
-			earthquakesList.add(quake);
 			quakeAdapter.add(quake);
 		}
 		
@@ -90,7 +94,8 @@ public class MainActivity extends Activity {
 
 	// A sajat provider-bol betoltjuk az ott talalhato foldrengeseket
 	private void loadQuakesFromProvider() {
-		// TODO tomb uritese
+		//tomb uritese
+		earthquakesList.clear();
 		
 		// default ContentResolver-t hasznaljuk
 		ContentResolver cr = getContentResolver();
@@ -127,34 +132,46 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add("Update");
-		menu.add("Preferences");
-		menu.add("Eartquake map");
+		menu.add(0,MENU_UPDATE,Menu.NONE,"Update");
+		menu.add(0,MENU_PREFERENCES,Menu.NONE,"Preferences");
+		menu.add(0,MENU_EARTHQUAKE_MAP,Menu.NONE,"Earthquake map");
+
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
 		super.onOptionsItemSelected(item);
-		// TODO menu kivalasztasanak kezelese
+		// menu kivalasztasanak kezelese
 		// MENU_UPDATE: Foldrengesek azonnali frissitese
 		// MENU_PREFERENCES: Beallitasok megjelenitese (ertesulni akarunk az eredmenyrol)
 		// MENU_EARTHQUAKE_MAP: terkep megjelenitese (nem akarunk ertesulni)
 		switch(item.getItemId())
         {
-            case MENU_UPDATE:
-            	updateFromPreferences();
-                  return true;
+            
+        	case MENU_UPDATE:
+        		Log.d("DEMOTAG","Update");
+            	refreshEarthquakes();
+                return true;
+                
             case MENU_PREFERENCES:
-                // do whatever
+            	Log.d("DEMOTAG","Preferences");
+            	Intent preferences = new Intent();
+            	preferences.setClass(MainActivity.this, Preferences.class);
+				startActivityForResult(preferences,0);
                 return true;
+                
             case MENU_EARTHQUAKE_MAP:
-                // do whatever
+            	Log.d("DEMOTAG","Map");
+            	Intent map = new Intent();
+				map.setClass(MainActivity.this, EarthquakeMap.class);
+				startActivity(map);
                 return true;
+            default:
+            	Log.d("DEMOTAG","Default: " + item.getItemId());
         }
 		
 		return false;
-	}
-	
+	}	
 	
 	
 	@Override
@@ -163,25 +180,44 @@ public class MainActivity extends Activity {
 			case (QUAKE_DIALOG):
 				LayoutInflater li = LayoutInflater.from(this);
 				View quakeDetailsView = li.inflate(R.layout.quake_details, null);
-				// TODO dialogusablak feldobasa
+				// dialogusablak feldobasa
+				AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+				dialog.setTitle(selectedQuake.getDate().toString());
+				dialog.setMessage("Magnitude: " + selectedQuake.getMagnitude() + "\n" +
+								  "Location: "  + selectedQuake.getDetails() + "\n" +
+								  "Link: "		+ selectedQuake.getLink());
+				dialog.setView(quakeDetailsView);
+				dialog.show();
 		}
 		return null;
 	}
 	
 	// elinditja a foldrengeseket letolto Service-t
 	private void refreshEarthquakes() {
-		// TODO Service azonnali inditasa
+		// Service azonnali inditasa
+		Intent earthQuakeService = new Intent();
+		earthQuakeService.setClass(MainActivity.this, EarthquakeService.class);
+		startService(earthQuakeService);
 	}
 	
 	// minimumMagnitude, updateFreq és autoUpdate parameterek beolvasasa a beallitasokbol
 	private void updateFromPreferences() {
-		// TODO beallitasok alapjan a parameterek beolvasasa
+		// beallitasok alapjan a parameterek beolvasasa
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		autoUpdate = prefs.getBoolean(Preferences.PREF_AUTO_UPDATE, false);
+		updateFreq = prefs.getInt(Preferences.PREF_UPDATE_FREQ, 0);
+		minimumMagnitude = prefs.getInt(Preferences.PREF_MIN_MAG, 0);
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		// TODO Ha RESULT_OK-val tert vissza a beallitasok, akkor parameterek es foldrengesek frissitese
+		// Ha RESULT_OK-val tert vissza a beallitasok, akkor parameterek es foldrengesek frissitese
+		if(resultCode == RESULT_OK)
+		{
+			updateFromPreferences();
+			refreshEarthquakes();
+		}
 
 	}
 	
