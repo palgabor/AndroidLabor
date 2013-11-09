@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FindFriendsLabor</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menuAddContact">Személy hozzáadása</string>
+    <string name="txtContactPlace">Személy tartózkodási helye:</string>
+    <string name="txt_provider">Technológia:</string>
+    <string name="txt_latitude">Szélesség:</string>
+    <string name="txt_longitude">Hosszúság:</string>
+    <string name="txt_speed">Sebesség:</string>
+    <string name="txt_alt">Magasság:</string>
+    <string name="txt_position_time">Pozíció idő:</string>
+    <string name="txt_empty">Üres. - Kérem vegyen fel új elemet a menü segítségével.</string>
+</resources>

@@ -1,0 +1,880 @@
+2.1 a - Manifest
+
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.READ_CONTACTS"/>
+
+2.1 b - strings.xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FindFriendsLabor</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menuAddContact">Személy hozzáadása</string>
+    <string name="txtContactPlace">Személy tartózkodási helye:</string>
+    <string name="txt_provider">Technológia:</string>
+    <string name="txt_latitude">Szélesség:</string>
+    <string name="txt_longitude">Hosszúság:</string>
+    <string name="txt_speed">Sebesség:</string>
+    <string name="txt_alt">Magasság:</string>
+    <string name="txt_position_time">Pozíció idő:</string>
+    <string name="txt_empty">Üres. - Kérem vegyen fel új elemet a menü segítségével.</string>
+</resources>
+
+2.1 c - layout/res/activity_main.xml
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity" >
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/mainViewPager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <!-- PagerTitleStrip is lehet -->
+
+        <android.support.v4.view.PagerTabStrip
+            android:id="@+id/PagerTabStrip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:textSize="22sp" />
+    </android.support.v4.view.ViewPager>
+
+</RelativeLayout>
+
+2.1 d - MainActivity
+public class MainActivity extends FragmentActivity {
+
+	private static final int REQUEST_PICK_CONTACT = 100;
+	private ViewPager pager;
+	private MyLocationManager myLocMan;
+	private FriendsFragmentPagerAdapter fragmentAdapter;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+
+		pager = (ViewPager) findViewById(R.id.mainViewPager);
+		fragmentAdapter = new FriendsFragmentPagerAdapter(
+				getSupportFragmentManager());
+		pager.setAdapter(fragmentAdapter);
+		
+		myLocMan = new MyLocationManager(this);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (myLocMan != null) {
+			myLocMan.startLocationMonitoring();
+		}
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (myLocMan != null) {
+			myLocMan.stopLocationMonitoring();
+		}
+	}
+}
+
+2.2 - MyLocationManager
+public class MyLocationManager implements LocationListener {
+
+	public static final String BR_LOCATION_INFO = "BR_LOCATION_INFO";
+	public static final String KEY_LOCATION = "KEY_LOCATION";
+	private Context context;
+	private LocationManager locMan;
+
+	public MyLocationManager(Context aContext) {
+		context = aContext;
+		locMan = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+	}
+	
+	
+	public void startLocationMonitoring() {
+		locMan.requestLocationUpdates(
+        		LocationManager.GPS_PROVIDER,
+        		0, 0, this);
+		locMan.requestLocationUpdates(
+        		LocationManager.NETWORK_PROVIDER,
+        		0, 0, this);
+	}
+	
+	public void stopLocationMonitoring() {
+		if (locMan != null) {
+			locMan.removeUpdates(this);
+    	}
+	}
+	
+	
+	@Override
+	public void onLocationChanged(Location location) {
+		Intent intent = new Intent(BR_LOCATION_INFO);
+	    intent.putExtra(KEY_LOCATION, location);
+	    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+	}
+}
+
+2.3 a - FriendsFragmentPagerAdapter
+public class FriendsFragmentPagerAdapter extends FragmentPagerAdapter {
+
+	private LocationDashboardFragment locationDashboardFragment;
+	private FriendsListFragment friendsListFragment;
+
+	public FriendsFragmentPagerAdapter(FragmentManager fragmentManager) {
+		super(fragmentManager);
+		locationDashboardFragment = new LocationDashboardFragment();
+		friendsListFragment = new FriendsListFragment();
+	}
+
+	@Override
+	public Fragment getItem(int pos) {
+		switch (pos) {
+		case 0:
+			return locationDashboardFragment;
+		case 1:
+			return friendsListFragment;
+		default:
+			return null;
+		}
+	}
+	
+	@Override
+	public CharSequence getPageTitle(int pos) {
+		switch (pos) {
+			case 0:
+				return LocationDashboardFragment.TITLE;
+			case 1:
+				return FriendsListFragment.TITLE;
+			default:
+				return null;
+		}
+	}
+
+	@Override
+	public int getCount() {
+		return 2;
+	}
+	
+	public FriendsListFragment getFriendsListFragment() {
+		return friendsListFragment;
+	}
+}
+
+2.3.1 a - LocationDashboardFragment
+
+public class LocationDashboardFragment extends Fragment {
+
+	public static final String TAG = "LocationDashboardFragment";
+	public static final String TITLE = "Pozíció adatok";
+	
+	private TextView tvProviderValue;
+	private TextView tvLatValue;
+	private TextView tvLngValue;
+	private TextView tvSpeedValue;
+	private TextView tvAltValue;
+	private TextView tvPosTimeValue;
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View root = inflater.inflate(R.layout.location_dashboard, container,
+				false);
+		return root;
+	}
+	
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		initField(R.id.fieldProvider,getActivity().getString(R.string.txt_provider));
+		initField(R.id.fieldLat,getActivity().getString(R.string.txt_latitude));
+		initField(R.id.fieldLng,getActivity().getString(R.string.txt_longitude));
+		initField(R.id.fieldSpeed,getActivity().getString(R.string.txt_speed));
+		initField(R.id.fieldAlt,getActivity().getString(R.string.txt_alt));
+		initField(R.id.fieldPosTime,getActivity().getString(R.string.txt_position_time));
+	}
+
+	private void initField(int fieldId, String headText) {
+		View viewField = getView().findViewById(fieldId);
+		TextView tvHead = (TextView) viewField.findViewById(R.id.tvHead);
+		tvHead.setText(headText);
+		
+		switch (fieldId) {
+			case R.id.fieldProvider:
+				tvProviderValue = (TextView) viewField.findViewById(R.id.tvValue);
+				break;
+			case R.id.fieldLat:
+				tvLatValue = (TextView) viewField.findViewById(R.id.tvValue);
+				break;
+			case R.id.fieldLng:
+				tvLngValue = (TextView) viewField.findViewById(R.id.tvValue);
+				break;
+			case R.id.fieldSpeed:
+				tvSpeedValue = (TextView) viewField.findViewById(R.id.tvValue);
+				break;
+			case R.id.fieldAlt:
+				tvAltValue = (TextView) viewField.findViewById(R.id.tvValue);
+				break;
+			case R.id.fieldPosTime:
+				tvPosTimeValue = (TextView) viewField.findViewById(R.id.tvValue);
+				break;
+			default:
+				break;
+		}
+	}
+	
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+                mMessageReceiver, new IntentFilter(MyLocationManager.BR_LOCATION_INFO));
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+	}
+	
+	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+			Location myLocation = intent.getParcelableExtra(MyLocationManager.KEY_LOCATION);
+			
+			tvProviderValue.setText(myLocation.getProvider());
+			tvLatValue.setText(String.valueOf(myLocation.getLatitude()));
+			tvLngValue.setText(String.valueOf(myLocation.getLongitude()));
+			tvSpeedValue.setText(String.valueOf(myLocation.getSpeed()));
+			tvAltValue.setText(String.valueOf(myLocation.getAltitude()));
+			tvPosTimeValue.setText(new Date(myLocation.getTime()).toString());
+        }
+    };
+}
+
+2.3.1 b - location_dashboard.xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ScrollView
+        android:id="@+id/scroller"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:fillViewport="true" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <include
+                android:id="@+id/fieldProvider"
+                layout="@layout/tile_info" />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:weightSum="2" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" >
+
+                    <include
+                        android:id="@+id/fieldLat"
+                        layout="@layout/tile_info" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" >
+
+                    <include
+                        android:id="@+id/fieldLng"
+                        layout="@layout/tile_info" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:weightSum="2" >
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" >
+
+                    <include
+                        android:id="@+id/fieldSpeed"
+                        layout="@layout/tile_info" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" >
+
+                    <include
+                        android:id="@+id/fieldAlt"
+                        layout="@layout/tile_info" />
+                </LinearLayout>
+            </LinearLayout>
+            
+            <include
+                android:id="@+id/fieldPosTime"
+                layout="@layout/tile_info" />
+            
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
+
+2.3.1 c - tile_info.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@drawable/tile_bg"
+    android:layout_margin="5dp">
+
+    <TextView
+        android:id="@+id/tvHead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        android:text="Data:" />
+
+    <TextView
+        android:id="@+id/tvValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        android:text="0" />
+
+</LinearLayout>
+
+2.3.2 a - LocationFriend
+public class LocationFriend {
+
+	private String name;
+	private String address;
+	private boolean hasCoords = false;
+	private double lat = 0;
+	private double lng = 0;
+
+	public LocationFriend(String aName, String aAddress, Context aContext) {
+		name = aName;
+		address = aAddress;
+		setCoords(aContext);
+	}
+	
+	private void setCoords(final Context aContext) {
+		new Thread() {
+			public void run() {
+				try {
+					Geocoder geocoder = new Geocoder(aContext);
+					List<Address> locations = null;
+					locations = geocoder.getFromLocationName(address, 1);
+					lat = locations.get(0).getLatitude();
+					lng = locations.get(0).getLongitude();
+					hasCoords = true;
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	
+	public double getLat() {
+		return lat;
+	}
+
+	public double getLng() {
+		return lng;
+	}
+
+	public boolean hasCoords() {
+		return hasCoords;
+	}
+}
+
+2.3.2 b - LocationFriendsManager
+public class LocationFriendsManager {
+
+	private static LocationFriendsManager instance = null;
+	
+	public static LocationFriendsManager getInstance() {
+		if (instance == null) {
+			instance = new LocationFriendsManager();
+		}
+		return instance;
+	}
+	
+	private ArrayList<LocationFriend> locationFriends;
+	
+	public LocationFriendsManager() {
+		locationFriends = new ArrayList<LocationFriend>();
+	}
+	
+	public LocationFriend getLocationFriend(int aIndex) {
+		return locationFriends.get(aIndex);
+	}
+	
+	public int getLocationFriendsNum() {
+		return locationFriends.size();
+	}
+	
+	public void addFriend(LocationFriend locFriend) {
+		locationFriends.add(locFriend);
+	}
+	
+	public ArrayList<LocationFriend> getLocationFriends() {
+		return locationFriends;
+	}
+
+	public void clear() {
+		if (locationFriends != null) {
+			locationFriends.clear();
+		}
+	}
+}
+
+2.3.2 c - LocationFriendsAdapter
+public class LocationFriendsAdapter extends BaseAdapter {
+
+	private Location myLocation = null;
+	private Context context;
+
+	public LocationFriendsAdapter(Context aContext) {
+		context = aContext;
+		LocationFriendsManager.getInstance().clear();
+		LocationFriendsManager.getInstance().addFriend(
+				new LocationFriend("John Doe", "Zalaegerszeg", context));
+		LocationFriendsManager.getInstance().addFriend(
+				new LocationFriend("Jeff Johnson", "Miskolc", context));
+		LocationFriendsManager.getInstance().addFriend(
+				new LocationFriend("Test Elek", "Debrecen", context));
+		LocationFriendsManager.getInstance().addFriend(
+				new LocationFriend("James Demo", "Budapest", context));
+	}
+	
+	public void setMyPosition(Location aMyLocation) {
+		myLocation = aMyLocation;
+		notifyDataSetChanged();
+	}
+	
+	static class ViewHolder {
+		TextView tvName;
+		TextView tvAddres;
+		TextView tvDistance;
+	}
+
+	
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		View v = convertView;
+		if (v == null) {
+			LayoutInflater inflater = LayoutInflater.from(context);
+			v = inflater.inflate(R.layout.friendrow, null);
+			ViewHolder holder = new ViewHolder();
+			holder.tvName = (TextView) v.findViewById(R.id.textViewName);
+			holder.tvAddres = (TextView) v.findViewById(R.id.textViewAddress);
+			holder.tvDistance = (TextView) v
+					.findViewById(R.id.textViewDistance);
+			v.setTag(holder);
+		}
+
+		final LocationFriend lFriend = LocationFriendsManager.getInstance()
+				.getLocationFriend(position);
+		if (lFriend != null) {
+			ViewHolder holder = (ViewHolder) v.getTag();
+			holder.tvName.setText(lFriend.getName());
+			holder.tvAddres.setText(lFriend.getAddress());
+			if (myLocation != null && lFriend.hasCoords()) {
+				float[] results = new float[1];
+				Location.distanceBetween(myLocation.getLatitude(),
+						myLocation.getLongitude(), lFriend.getLat(),
+						lFriend.getLng(), results);
+				holder.tvDistance.setText("" + results[0] + " m");
+			}
+		}
+
+		return v;
+	}
+
+	@Override
+	public int getCount() {
+		return LocationFriendsManager.getInstance().getLocationFriendsNum();
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return LocationFriendsManager.getInstance().getLocationFriend(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
+}
+
+2.3.2 d - res/layout/friendrow.xml
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:gravity="center_vertical" >
+
+        <ImageView
+            android:id="@+id/imageViewAvatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:paddingLeft="10dp"
+            android:src="@drawable/avatar" />
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/linearLayout2"
+        android:layout_toRightOf="@+id/linearLayout1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingLeft="10dp" >
+
+        <TextView
+            android:id="@+id/textViewName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:textColor="@android:color/black"
+            android:text="Name" />
+
+        <TextView
+            android:id="@+id/textViewAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:textColor="@android:color/black"
+            android:text="Address" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:paddingLeft="10dp" >
+
+        <TextView
+            android:id="@+id/textViewDistance"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:paddingRight="10dp"
+            android:text="0 m"
+            android:textColor="@android:color/black"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+</RelativeLayout>
+
+2.3.2 e - FriendsListFragment
+public class FriendsListFragment extends ListFragment {
+
+	public static final String TAG = "FriendsListFragment";
+	public static final String TITLE = "Személyek";
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View v = inflater.inflate(R.layout.friendslist, container, false);
+		return v;
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		setListAdapter(new LocationFriendsAdapter(getActivity().getApplicationContext()));
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(
+                mMessageReceiver, new IntentFilter(MyLocationManager.BR_LOCATION_INFO));
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+	}
+	
+	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+			Location myLocation = intent.getParcelableExtra(MyLocationManager.KEY_LOCATION);
+			((LocationFriendsAdapter)getListAdapter()).setMyPosition(myLocation);
+        }
+    };
+}
+
+2.3.2 f - res/layout/friendslist.xml
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:drawSelectorOnTop="false" />
+
+    <!-- Üres lista esetén ez jelenik meg -->
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/txt_empty"/>
+
+</FrameLayout>
+
+
+2.4 a - res/menu/activity_main.xml
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/itemAddContact" android:title="@string/menuAddContact"/>
+</menu>
+
+2.4 b - MainActivity-be
+@Override
+protected void onActivityResult(int requestCode, 
+		int resultCode, Intent data) {
+	super.onActivityResult(requestCode, resultCode, data);
+	if (resultCode == RESULT_OK) {
+		switch (requestCode) {
+			case REQUEST_PICK_CONTACT:
+				Uri contactUri = data.getData();
+				if (contactUri != null) {
+					Cursor c = null;
+					Cursor addrCur = null;
+					try {
+						ContentResolver cr = getContentResolver();
+						c = cr.query(contactUri,null,null, null, null);
+						if (c != null && c.moveToFirst()) {
+							String id = c.getString(c.getColumnIndex(BaseColumns._ID));
+							String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+							String address = "";
+							
+							addrCur = cr.query( 
+								    ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_URI, 
+								    null,
+								    ContactsContract.CommonDataKinds.StructuredPostal.CONTACT_ID + " = ?", 
+								    new String[]{id}, null); 
+							
+							if (addrCur != null && addrCur.moveToFirst()) {
+								address = addrCur.getString(addrCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.DATA));
+							}
+							
+							LocationFriendsManager.getInstance().addFriend(
+									new LocationFriend(name, address, getApplicationContext()));
+							FriendsListFragment friendsListFragment = fragmentAdapter
+									.getFriendsListFragment();
+							if (friendsListFragment != null) {
+								LocationFriendsAdapter adapter = (LocationFriendsAdapter) friendsListFragment
+										.getListAdapter();
+								if (adapter != null) {
+									adapter.notifyDataSetChanged();
+								}
+							}
+						}
+					} finally {
+						if (c != null) {
+							c.close();
+						}
+						if (addrCur != null) {
+							addrCur.close();
+						}
+					}
+				}
+				
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+@Override
+public boolean onCreateOptionsMenu(Menu menu) {
+    MenuInflater inflater = getMenuInflater();
+    inflater.inflate(R.menu.activity_main, menu);
+    return true;
+}
+
+@Override
+public boolean onOptionsItemSelected(MenuItem item) {
+	
+	if (item.getItemId() == R.id.itemAddContact)
+	{
+        Intent intent = new Intent(
+    		Intent.ACTION_PICK,
+    		ContactsContract.Contacts.CONTENT_URI);
+        startActivityForResult(intent, REQUEST_PICK_CONTACT);
+	}
+	
+	return super.onOptionsItemSelected(item);
+}
+
+2.5.2 a - Manifest
+
+2.5.2 b - Manifest <application> tag-en belül
+<meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzZsyAlrRYT_x5GRwY5y17qMkyFxZzvzGqBw4c" />
+
+
+2.5.3 a - FriendsMapFragment
+public class FriendsMapFragment extends SupportMapFragment {
+
+	public static final String TAG = "FriendsMapFragment";
+	public static final String TITLE = "Térkép";
+	
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		getMap().clear();
+		
+		getMap().setMyLocationEnabled(true);
+		getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(47, 19), 5));
+		getMap().getUiSettings().setAllGesturesEnabled(false);
+		
+		for (int i=0; i<LocationFriendsManager.getInstance().getLocationFriendsNum(); i++) {
+			LocationFriend tmpFriend = LocationFriendsManager.getInstance().getLocationFriend(i);
+			if (tmpFriend.hasCoords()){
+				getMap().addMarker(
+						  new MarkerOptions().
+						  position(new LatLng(tmpFriend.getLat(), tmpFriend.getLng())).
+						  title(tmpFriend.getName()));
+			}
+		}
+	}
+}
+
+2.5.3 b - FriendsFragmentPagerAdapter módosítása
+public class FriendsFragmentPagerAdapter extends FragmentPagerAdapter {
+
+	private LocationDashboardFragment locationDashboardFragment;
+	private FriendsListFragment friendsListFragment;
+	private FriendsMapFragment friendsMapFragment;
+	
+	public FriendsFragmentPagerAdapter(FragmentManager fragmentManager) {
+		super(fragmentManager);
+		locationDashboardFragment = new LocationDashboardFragment();
+		friendsListFragment = new FriendsListFragment();
+		friendsMapFragment = new FriendsMapFragment();
+	}
+
+	@Override
+	public Fragment getItem(int pos) {
+		switch (pos) {
+		case 0:
+			return locationDashboardFragment;
+		case 1:
+			return friendsListFragment;
+		case 2:
+			return friendsMapFragment;
+		default:
+			return null;
+		}
+	}
+	
+	@Override
+	public CharSequence getPageTitle(int pos) {
+		switch (pos) {
+			case 0:
+				return LocationDashboardFragment.TITLE;
+			case 1:
+				return FriendsListFragment.TITLE;
+			case 2:
+				return FriendsMapFragment.TITLE;
+			default:
+				return null;
+		}
+	}
+
+	@Override
+	public int getCount() {
+		return 3;
+	}
+	
+	public FriendsListFragment getFriendsListFragment() {
+		return friendsListFragment;
+	}
+}
