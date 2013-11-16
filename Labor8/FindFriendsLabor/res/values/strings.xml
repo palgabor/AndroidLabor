@@ -10,5 +10,7 @@
     <string name="txt_speed">Sebesség:</string>
     <string name="txt_alt">Magasság:</string>
     <string name="txt_position_time">Pozíció idő:</string>
+    <string name="txt_accuracy">Pontosság:</string>
+    <string name="txt_bearing">Irány:</string>
     <string name="txt_empty">Üres. - Kérem vegyen fel új elemet a menü segítségével.</string>
 </resources>

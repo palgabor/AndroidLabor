@@ -33,7 +33,7 @@ public class MainActivity extends FragmentActivity {
 				getSupportFragmentManager());
 		pager.setAdapter(fragmentAdapter);
 		
-		myLocMan = new MyLocationManager(this);
+		myLocMan = new MyLocationManager(this);		
 	}
 	
 	@Override

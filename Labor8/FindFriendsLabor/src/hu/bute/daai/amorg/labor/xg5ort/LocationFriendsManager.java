@@ -32,6 +32,10 @@ public class LocationFriendsManager {
 		locationFriends.add(locFriend);
 	}
 	
+	public void removeFriend(int index) {
+		locationFriends.remove(index);
+	}
+	
 	public ArrayList<LocationFriend> getLocationFriends() {
 		return locationFriends;
 	}

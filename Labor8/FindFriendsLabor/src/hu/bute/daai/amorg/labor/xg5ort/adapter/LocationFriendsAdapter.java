@@ -29,6 +29,11 @@ public class LocationFriendsAdapter extends BaseAdapter {
 				new LocationFriend("James Demo", "Budapest", context));
 	}
 	
+	public void removeFirend(int index){
+		LocationFriendsManager.getInstance().removeFriend(index);
+		notifyDataSetChanged();
+	}
+	
 	public void setMyPosition(Location aMyLocation) {
 		myLocation = aMyLocation;
 		notifyDataSetChanged();

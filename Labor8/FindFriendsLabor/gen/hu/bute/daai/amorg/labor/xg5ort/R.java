@@ -145,7 +145,9 @@ containing a value of this type.
     }
     public static final class id {
         public static final int PagerTabStrip=0x7f040006;
+        public static final int fieldAccuracy=0x7f040014;
         public static final int fieldAlt=0x7f040012;
+        public static final int fieldBearing=0x7f040015;
         public static final int fieldLat=0x7f04000f;
         public static final int fieldLng=0x7f040010;
         public static final int fieldPosTime=0x7f040013;
@@ -153,7 +155,7 @@ containing a value of this type.
         public static final int fieldSpeed=0x7f040011;
         public static final int hybrid=0x7f040004;
         public static final int imageViewAvatar=0x7f040008;
-        public static final int itemAddContact=0x7f040016;
+        public static final int itemAddContact=0x7f040018;
         public static final int linearLayout1=0x7f040007;
         public static final int linearLayout2=0x7f040009;
         public static final int mainViewPager=0x7f040005;
@@ -165,8 +167,8 @@ containing a value of this type.
         public static final int textViewAddress=0x7f04000b;
         public static final int textViewDistance=0x7f04000c;
         public static final int textViewName=0x7f04000a;
-        public static final int tvHead=0x7f040014;
-        public static final int tvValue=0x7f040015;
+        public static final int tvHead=0x7f040016;
+        public static final int tvValue=0x7f040017;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -245,8 +247,10 @@ containing a value of this type.
         public static final int hello_world=0x7f050012;
         public static final int menuAddContact=0x7f050013;
         public static final int txtContactPlace=0x7f050014;
+        public static final int txt_accuracy=0x7f05001b;
         public static final int txt_alt=0x7f050019;
-        public static final int txt_empty=0x7f05001b;
+        public static final int txt_bearing=0x7f05001c;
+        public static final int txt_empty=0x7f05001d;
         public static final int txt_latitude=0x7f050016;
         public static final int txt_longitude=0x7f050017;
         public static final int txt_position_time=0x7f05001a;

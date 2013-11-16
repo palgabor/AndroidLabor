@@ -29,6 +29,8 @@ public class LocationDashboardFragment extends Fragment {
 	private TextView tvSpeedValue;
 	private TextView tvAltValue;
 	private TextView tvPosTimeValue;
+	private TextView tvAccuracyValue;
+	private TextView tvBearingValue;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,6 +49,8 @@ public class LocationDashboardFragment extends Fragment {
 		initField(R.id.fieldSpeed,getActivity().getString(R.string.txt_speed));
 		initField(R.id.fieldAlt,getActivity().getString(R.string.txt_alt));
 		initField(R.id.fieldPosTime,getActivity().getString(R.string.txt_position_time));
+		initField(R.id.fieldAccuracy, getActivity().getString(R.string.txt_accuracy));
+		initField(R.id.fieldBearing, getActivity().getString(R.string.txt_bearing));
 	}
 
 	private void initField(int fieldId, String headText) {
@@ -72,6 +76,12 @@ public class LocationDashboardFragment extends Fragment {
 				break;
 			case R.id.fieldPosTime:
 				tvPosTimeValue = (TextView) viewField.findViewById(R.id.tvValue);
+				break;
+			case R.id.fieldAccuracy:
+				tvAccuracyValue = (TextView) viewField.findViewById(R.id.tvValue);
+				break;
+			case R.id.fieldBearing:
+				tvBearingValue = (TextView) viewField.findViewById(R.id.tvValue);
 				break;
 			default:
 				break;
@@ -103,6 +113,8 @@ public class LocationDashboardFragment extends Fragment {
 			tvSpeedValue.setText(String.valueOf(myLocation.getSpeed()));
 			tvAltValue.setText(String.valueOf(myLocation.getAltitude()));
 			tvPosTimeValue.setText(new Date(myLocation.getTime()).toString());
+			tvAccuracyValue.setText(String.valueOf(myLocation.getAccuracy()));
+			tvBearingValue.setText(String.valueOf(myLocation.getBearing()));
         }
     };
 }

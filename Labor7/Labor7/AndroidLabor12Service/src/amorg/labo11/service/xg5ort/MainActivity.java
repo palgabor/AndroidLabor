@@ -207,6 +207,7 @@ public class MainActivity extends Activity {
 		autoUpdate = prefs.getBoolean(Preferences.PREF_AUTO_UPDATE, false);
 		updateFreq = prefs.getInt(Preferences.PREF_UPDATE_FREQ, 0);
 		minimumMagnitude = prefs.getInt(Preferences.PREF_MIN_MAG, 0);
+		Log.d("DEMOTAG", "Minimum magnitude: " + minimumMagnitude);
 	}
 
 	@Override

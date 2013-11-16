@@ -11,9 +11,13 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 
 public class FriendsListFragment extends ListFragment {
 
@@ -36,6 +40,7 @@ public class FriendsListFragment extends ListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setListAdapter(new LocationFriendsAdapter(getActivity().getApplicationContext()));
+		registerForContextMenu(getListView());
 	}
 
 	@Override
@@ -50,6 +55,18 @@ public class FriendsListFragment extends ListFragment {
 		super.onPause();
 		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
 	}
+	
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    	menu.add("Delete item");
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+    	AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+    	((LocationFriendsAdapter)getListAdapter()).removeFirend(info.position);
+    	return true;
+    }
 	
 	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
