@@ -35,7 +35,6 @@ public class SmsReceiver extends BroadcastReceiver
 						abortBroadcast();
 						result = parser.findAction(body);
 						Toast.makeText(context, "Result: " + result, Toast.LENGTH_LONG).show();
-						
 					}
 				}
 			}
