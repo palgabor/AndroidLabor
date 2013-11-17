@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+  <CheckBoxPreference
+    android:key="USE_INTERNET"
+    android:title="@string/use_internet"
+    android:summary="@string/use_internet_summary" 
+    android:defaultValue="true"
+  />
+                          
+  <EditTextPreference
+    android:key="TELEPHONE_NUMBER"
+    android:title="@string/telephone_number"
+    android:summary="@string/telephone_number_summary"
+  />
+  
+  <EditTextPreference
+    android:key="PASSWORD"
+    android:title="@string/password"
+    android:summary="@string/password_summary"
+  />
+  
+  <ListPreference
+   android:key="EMERGENCY_FREQUENCY"
+   android:title="@string/emergency_frequency"
+   android:summary="@string/emergency_frequency_summary"
+   android:entries="@array/emergency_frequency_options"
+   android:entryValues="@array/emergency_frequency_values"
+   android:dialogTitle="@string/emergency_frequency_title"
+   android:defaultValue="10"
+  />
+</PreferenceScreen>

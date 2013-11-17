@@ -1,5 +1,19 @@
 <resources>
-
     <string name="app_name">PhoneGuard</string>
-
+    <string name="settings">PhoneGuard</string>
+    <string name="use_internet">Use internet</string>
+    <string name="use_internet_summary">Use internet connection if available (instead of SMS).</string>
+        
+    <string name="telephone_number">Telephone number</string>    
+    <string name="telephone_number_summary">Telephone number where the application 
+        									sends SMS in emergency state.</string>        
+    
+    <string name="password">Password</string>    
+    <string name="password_summary">Password to use the application from remote
+        							(needs in every SMS to control the application).</string>
+        							
+    <string name="emergency_frequency">Update frequency</string>    
+    <string name="emergency_frequency_summary">How often the application sends update about the 
+        									   location of the phone in an emergency state.</string>
+    <string name="emergency_frequency_title">Update frequency</string>
 </resources>

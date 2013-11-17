@@ -1,4 +1,5 @@
-package hu.bute.daai.amorg.xg5ort.phoneguard.receiver;
+package hu.bute.daai.amorg.xg5ort.phoneguard.parser;
+
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,17 +17,16 @@ public class SmsParser
 	public static final int ACTION_EMERGENCY_WITHOUT_TIME = 5;
 	public static final int ACTION_STOP_EMERGENCY = 6;
 	public static final int ACTION_SETTINGS = 7;
-	public static final int ACTION_EMERGENCY_HOUR_BASE = 1000;
-	public static final int ACTION_EMERGENCY_MINUTE_BASE = -1000;
-	
+	public static final int ACTION_EMERGENCY_TIME_BASE = 1000;
+
 	private final String SEPARATOR = "#";
 	private final String SMS_STARTER = "[PG]";
-	private final String ACTION_EMERGENCY_STR = "emer";
-	private final String ACTION_STOP_EMERGENCY_STR = "stop emer";
-	private final String ACTION_SETTINGS_STR = "set";
+	public static final String ACTION_EMERGENCY_STR = "emer";
+	public static final String ACTION_STOP_EMERGENCY_STR = "stop emer";
+	public static final String ACTION_SETTINGS_STR = "set";
 	
-	private final String HOUR = "h";
-	private final String MINUTE = "m";
+	public static final String HOUR = "h";
+	public static final String MINUTE = "m";
 	
 	private String PASSWORD = "jelszo"; 
 	
@@ -103,12 +103,12 @@ public class SmsParser
 		if(time.contains(HOUR))
 		{
 			timeNum = Integer.parseInt(time.substring(0, time.length()-HOUR.length() -1));
-			return ACTION_EMERGENCY_HOUR_BASE + timeNum;
+			return ACTION_EMERGENCY_TIME_BASE + timeNum*60;
 		}
 		else if(time.contains(MINUTE))
 		{
 			timeNum = Integer.parseInt(time.substring(0, time.length()-MINUTE.length() -1));
-			return ACTION_EMERGENCY_MINUTE_BASE - timeNum;
+			return ACTION_EMERGENCY_TIME_BASE + timeNum;
 		}
 		else
 		{

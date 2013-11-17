@@ -16,11 +16,35 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         
+        <activity
+            android:label="@string/settings"
+            android:name="hu.bute.daai.amorg.xg5ort.phoneguard.activity.SettingsActivity">
+            <intent-filter >
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        
         <receiver android:name="hu.bute.daai.amorg.xg5ort.phoneguard.receiver.SmsReceiver">
             <intent-filter android:priority="999">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
+        
+        <receiver android:name="hu.bute.daai.amorg.xg5ort.phoneguard.receiver.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        
+        <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService">
+        </service>
+        
+        <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.BootHandlerService">
+        </service>
+        
+        <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService">
+        </service>
     </application>
 
 </manifest>
