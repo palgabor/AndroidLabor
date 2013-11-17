@@ -4,9 +4,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-public class BootHandlerService extends Service
+public class SmsSenderService extends Service
 {
-
 	@Override
 	public IBinder onBind(Intent intent)
 	{
@@ -16,9 +15,10 @@ public class BootHandlerService extends Service
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
-		//TODO handle boot
+		//TODO send SMS
+		//TODO delete sent SMS
+		//TODO AsyncTask
 		stopSelf();
 		return START_REDELIVER_INTENT;
 	}
-
 }

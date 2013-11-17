@@ -41,5 +41,11 @@ public class EmergencyHandlerService extends Service
 		}
 		
 		Log.d("Service: ", "time: " + time);
+		
+		//TODO fetch location data (GPS, cell, network?)
+		//TODO fetch telephone data (IMEI, IMSI)
+		//TODO start database service with the fetched data
+		//TODO do these periodically according to the time variable
+		//TODO AsyncTask
 	}
 }

@@ -45,6 +45,9 @@
         
         <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService">
         </service>
+        
+        <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.SmsSenderService">
+        </service>
     </application>
 
 </manifest>

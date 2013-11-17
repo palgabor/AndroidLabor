@@ -20,6 +20,11 @@ public class DatabaseService extends Service
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
+		//TODO handle intent
+		//TODO if network available, use BaaS service
+		//TODO if network not available, use SmsSenderService (new service)
+		//TODO Do we need SQLite?
+		//TODO AsyncTask very important!
 		stopSelf();
 		return START_REDELIVER_INTENT;
 	}
