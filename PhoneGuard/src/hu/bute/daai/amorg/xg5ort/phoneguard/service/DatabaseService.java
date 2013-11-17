@@ -23,4 +23,5 @@ public class DatabaseService extends Service
 		stopSelf();
 		return START_REDELIVER_INTENT;
 	}
+
 }

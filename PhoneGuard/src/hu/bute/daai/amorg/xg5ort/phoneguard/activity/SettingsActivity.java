@@ -11,6 +11,5 @@ public class SettingsActivity extends PreferenceActivity
 	{
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
-		//SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 	}
 }

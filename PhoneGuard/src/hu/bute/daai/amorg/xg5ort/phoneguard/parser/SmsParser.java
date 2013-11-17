@@ -1,8 +1,14 @@
 package hu.bute.daai.amorg.xg5ort.phoneguard.parser;
 
 
+import hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 
 public class SmsParser
@@ -28,15 +34,17 @@ public class SmsParser
 	public static final String HOUR = "h";
 	public static final String MINUTE = "m";
 	
-	private String PASSWORD = "jelszo"; 
+	private String password; 
+	private static Context context;
 	
 	private SmsParser()
 	{
-		
+		fetchPassword();
 	}
 	
-	public static SmsParser getInstance()
+	public static SmsParser getInstance(Context c)
 	{
+		context = c;
 		if(instance == null)
 		{
 			instance = new SmsParser();
@@ -45,16 +53,17 @@ public class SmsParser
 		return instance;
 	}
 	
-	public void setPassword(String pwd)
+	public void fetchPassword()
 	{
-		PASSWORD = pwd;
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		password = preferences.getString(DatabaseService.PASSWORD, "");
 	}
 	
 	public int parse(String body)
 	{
 		if(body.contains(SMS_STARTER + SEPARATOR))
 		{
-			if(body.contains(PASSWORD + SEPARATOR))
+			if(body.contains(password + SEPARATOR))
 			{
 				return PHONE_GUARD_SMS;
 			}
@@ -91,28 +100,31 @@ public class SmsParser
 	
 	private int getTimeValue(String msg)
 	{
-		Pattern p = Pattern.compile("([1-9]|[1-9]\\d+)(" + HOUR + "|" + MINUTE + ") +");
+		Pattern p = Pattern.compile("([1-9]|[1-9]\\d+)(" + HOUR + "|" + MINUTE + ")");
 		Matcher m = p.matcher(msg);
-		if(m.find() == false)
+		
+		if(msg.equals(SMS_STARTER + SEPARATOR + password + SEPARATOR + ACTION_EMERGENCY_STR))
+		{
+			return ACTION_EMERGENCY_WITHOUT_TIME;
+		}else if(m.find() == false)
 		{
 			return ACTION_UNKNOWN;
 		}
-		
-		String time = m.group();
-		int timeNum = 0;
-		if(time.contains(HOUR))
-		{
-			timeNum = Integer.parseInt(time.substring(0, time.length()-HOUR.length() -1));
-			return ACTION_EMERGENCY_TIME_BASE + timeNum*60;
-		}
-		else if(time.contains(MINUTE))
-		{
-			timeNum = Integer.parseInt(time.substring(0, time.length()-MINUTE.length() -1));
-			return ACTION_EMERGENCY_TIME_BASE + timeNum;
-		}
 		else
 		{
-			return ACTION_EMERGENCY_WITHOUT_TIME;
+			String time = m.group();
+			int timeNum = 0;
+			if(time.contains(HOUR))
+			{
+				timeNum = Integer.parseInt(time.substring(0, time.length()-HOUR.length()));
+				return ACTION_EMERGENCY_TIME_BASE + timeNum*60;
+			}
+			else if(time.contains(MINUTE))
+			{
+				timeNum = Integer.parseInt(time.substring(0, time.length()-MINUTE.length()));
+				return ACTION_EMERGENCY_TIME_BASE + timeNum;
+			}
+			return 0;
 		}
 	}
 }

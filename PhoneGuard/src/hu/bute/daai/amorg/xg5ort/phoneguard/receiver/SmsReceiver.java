@@ -12,8 +12,9 @@ public class SmsReceiver extends BroadcastReceiver
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
+		SmsParser parser = SmsParser.getInstance(context);
 		String sms = readSms(intent);
-		int result = parse(sms);
+		int result = parse(parser,sms);
 		switchAction(context, result);
 	}
 	
@@ -37,9 +38,8 @@ public class SmsReceiver extends BroadcastReceiver
 		return body;
 	}
 	
-	public int parse(String sms)
+	public int parse(SmsParser parser, String sms)
 	{
-		SmsParser parser = SmsParser.getInstance();
 		int result =  parser.parse(sms);
 		if(result == SmsParser.PHONE_GUARD_SMS)
 		{
@@ -60,7 +60,7 @@ public class SmsReceiver extends BroadcastReceiver
 			case SmsParser.ACTION_EMERGENCY_WITHOUT_TIME: 
 				intent.setClassName(context,
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.putExtra("action", SmsParser.ACTION_EMERGENCY_STR);
+				intent.setAction(SmsParser.ACTION_EMERGENCY_STR);
 				intent.putExtra("timeValue", 0);
 				context.startService(intent);
 				break;
@@ -68,7 +68,7 @@ public class SmsReceiver extends BroadcastReceiver
 			case SmsParser.ACTION_STOP_EMERGENCY:
 				intent.setClassName(context,
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.putExtra("action", SmsParser.ACTION_STOP_EMERGENCY_STR);
+				intent.setAction(SmsParser.ACTION_STOP_EMERGENCY_STR);
 				context.startService(intent);
 				break;
 			
@@ -84,7 +84,7 @@ public class SmsReceiver extends BroadcastReceiver
 				{
 					intent.setClassName(context,
 							"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-					intent.putExtra("action", SmsParser.ACTION_STOP_EMERGENCY_STR);
+					intent.setAction(SmsParser.ACTION_EMERGENCY_STR);
 					intent.putExtra("timeValue", result%SmsParser.ACTION_EMERGENCY_TIME_BASE);
 					context.startService(intent);
 				}
