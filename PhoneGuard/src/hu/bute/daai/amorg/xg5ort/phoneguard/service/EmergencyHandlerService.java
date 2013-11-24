@@ -81,7 +81,12 @@ public class EmergencyHandlerService extends Service
 		int time = intent.getIntExtra("timeValue", 0);
 		if(time == 0)
 		{
-			time = Integer.parseInt(preferences.getString(SharedPreferencesConstants.EMERGENCY_FREQUENCY, ""));
+			String timeStr = preferences.getString(SharedPreferencesConstants.EMERGENCY_FREQUENCY, "");
+			if(timeStr.equals("") == false)
+			{
+				time = Integer.parseInt(timeStr);
+			}
+			//TODO be careful, time variable can be empty here (0 as a default) 
 		}
 		else
 		{
