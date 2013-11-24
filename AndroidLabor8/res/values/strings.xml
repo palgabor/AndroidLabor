@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AndroidLabor8</string>
+    <string name="usernamehead">Felhasználónév:</string>
+    <string name="messagehead">Üzenet:</string>
+    <string name="left">Bal</string>
+    <string name="right">Jobb</string>
+    <string name="up">Fel</string>
+    <string name="down">Le</string>
+    <string name="send">Küldés</string>
+    <string name="empty_user">Üres felhasználónév!</string>
+    <string name="empty_user_or_message">Üres felhasználónév vagy jelszó!</string>
+</resources>

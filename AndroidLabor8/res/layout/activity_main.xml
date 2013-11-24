@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bgLayout"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+	<TextView  
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content" 
+	    android:text="@string/usernamehead"
+	    />
+	<EditText
+		android:id="@+id/editTextUserName" 
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"/>
+		
+	<LinearLayout
+	    android:orientation="horizontal"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center">
+		
+		<Button
+			android:text="@string/left"
+			android:id="@+id/buttonLeft"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+		
+		<Button
+			android:text="@string/right"
+			android:id="@+id/buttonRight"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+		
+		<Button
+			android:text="@string/up"
+			android:id="@+id/buttonUp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+		
+		<Button
+			android:text="@string/down"
+			android:id="@+id/buttonDown"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+    </LinearLayout>
+    
+	<TextView  
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content" 
+	    android:text="@string/messagehead"
+	    />
+	<EditText
+		android:id="@+id/editTextMessage" 
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"/>
+	<LinearLayout
+	    android:orientation="horizontal"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center">
+		<Button
+			android:text="@string/send"
+			android:id="@+id/buttonSendMessage"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+	</LinearLayout>
+
+	<TextView
+	    android:id="@+id/response_time"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text="Average response time:" />
+
+	<TextView
+	    android:id="@+id/response_time_value"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text=""
+	    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+	<TextView
+	    android:id="@+id/network_name"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text="Network name:" />
+
+	<TextView
+	    android:id="@+id/network_name_value"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text=""
+	    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+	<TextView
+	    android:id="@+id/wifi_state"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text="Wifi state:" />
+
+	<TextView
+	    android:id="@+id/wifi_state_value"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text=""
+	    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+</LinearLayout>
