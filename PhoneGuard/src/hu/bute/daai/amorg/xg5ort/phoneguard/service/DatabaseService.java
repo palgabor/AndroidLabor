@@ -4,6 +4,7 @@ import hu.bute.daai.amorg.xg5ort.data.DeviceData;
 import hu.bute.daai.amorg.xg5ort.data.LocationData;
 
 import java.util.Calendar;
+import java.util.List;
 
 import android.app.Service;
 import android.content.Intent;
@@ -47,7 +48,7 @@ public class DatabaseService extends Service
 			receivedSmsTable.put("SmsMessage", extras.getString("body"));
 			receivedSmsTable.put("Action", extras.getString("action"));
 			
-			receivedSmsTable.saveEventually();
+			receivedSmsTable.saveInBackground();
 			Log.d("PhoneGuardTag","Arrived SMS saved to DB.");
 		}
 		
@@ -64,18 +65,18 @@ public class DatabaseService extends Service
 			locationTable.put("Longitude", String.valueOf(locationData.getLongitude()));
 			locationTable.put("Accuracy", String.valueOf(locationData.getAccuracy()));
 			locationTable.put("Speed", String.valueOf(locationData.getSpeed()));
-			locationTable.put("Cell ID", String.valueOf(locationData.getCellId()));
-			locationTable.put("Location Area ID", String.valueOf(locationData.getLac()));
+			locationTable.put("CellID", String.valueOf(locationData.getCellId()));
+			locationTable.put("LocationAreaID", String.valueOf(locationData.getLac()));
 			
-			/*
+			
 			int num = 0;
 			List<Integer> neighboringCellIds = locationData.getNeighboringCellIds();
 			for(int i: neighboringCellIds)
 			{
-				parseObject.put("Neighboring cell " + num, String.valueOf(i));
+				locationTable.put("NeighboringCell" + num, String.valueOf(i));
 				num++;
 			}			
-			*/
+			
 			locationTable.saveInBackground();
 			Log.d("PhoneGuardTag","Location change saved to DB.");
 		}
@@ -88,9 +89,9 @@ public class DatabaseService extends Service
 			ParseObject deviceDataTable = new ParseObject("DeviceData");
 			
 			deviceDataTable.put("PhoneNumber", deviceData.getMsisdn());
-			deviceDataTable.put("IMEI number", deviceData.getImei());
-			deviceDataTable.put("IMSI number", deviceData.getImsi());
-			deviceDataTable.put("Operator name", deviceData.getOperatorName());
+			deviceDataTable.put("IMEInumber", deviceData.getImei());
+			deviceDataTable.put("IMSInumber", deviceData.getImsi());
+			deviceDataTable.put("OperatorName", deviceData.getOperatorName());
 			
 			deviceDataTable.saveInBackground();
 			Log.d("PhoneGuardTag","Device data saved to DB.");

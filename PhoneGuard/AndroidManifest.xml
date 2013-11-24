@@ -21,12 +21,17 @@
         android:theme="@style/AppTheme" >
         
         <activity
-            android:label="@string/settings"
-            android:name="hu.bute.daai.amorg.xg5ort.phoneguard.activity.SettingsActivity">
+            android:label="@string/test_activity"
+            android:name="hu.bute.daai.amorg.xg5ort.phoneguard.activity.TestActivity">
             <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        
+        <activity
+            android:label="@string/settings"
+            android:name="hu.bute.daai.amorg.xg5ort.phoneguard.activity.SettingsActivity">
         </activity>
         
         <receiver android:name="hu.bute.daai.amorg.xg5ort.phoneguard.receiver.SmsReceiver">
