@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
   xmlns:android="http://schemas.android.com/apk/res/android">
-  <CheckBoxPreference
-    android:key="USE_INTERNET"
-    android:title="@string/use_internet"
-    android:summary="@string/use_internet_summary" 
-    android:defaultValue="true"
+  
+  <ListPreference
+   android:key="PREFERRED_COMMUNICATION_MODE"
+   android:title="@string/preferred_communication"
+   android:summary="@string/preferred_communication_summary"
+   android:entries="@array/preferred_communication_options"
+   android:entryValues="@array/preferred_communication_values"
+   android:dialogTitle="@string/preferred_communication_title"
+   android:defaultValue="3"
   />
                           
   <EditTextPreference
-    android:key="TELEPHONE_NUMBER"
-    android:title="@string/telephone_number"
-    android:summary="@string/telephone_number_summary"
+    android:key="PHONE_NUMBER"
+    android:title="@string/phone_number"
+    android:summary="@string/phone_number_summary"
   />
   
   <EditTextPreference

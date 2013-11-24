@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string-array name="emergency_frequency_options">
+   <string-array name="preferred_communication_options">
+    <item>Internet</item>
+    <item>SMS</item>
+    <item>Internet and SMS</item>
+  </string-array>
+
+ <string-array name="preferred_communication_values">
+    <item>1</item>
+    <item>2</item>
+    <item>3</item>
+  </string-array>
+  
+    <string-array name="emergency_frequency_options">
     <item>1 minute</item>
     <item>5 minutes</item>
     <item>10 minutes</item>

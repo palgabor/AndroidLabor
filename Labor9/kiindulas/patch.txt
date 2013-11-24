@@ -1,0 +1,402 @@
+3.1
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bgLayout"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+	<TextView  
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content" 
+	    android:text="@string/usernamehead"
+	    />
+	<EditText
+		android:id="@+id/editTextUserName" 
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"/>
+		
+	<LinearLayout
+	    android:orientation="horizontal"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center">
+		
+		<Button
+			android:text="@string/left"
+			android:id="@+id/buttonLeft"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+		
+		<Button
+			android:text="@string/right"
+			android:id="@+id/buttonRight"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+		
+		<Button
+			android:text="@string/up"
+			android:id="@+id/buttonUp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+		
+		<Button
+			android:text="@string/down"
+			android:id="@+id/buttonDown"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+    </LinearLayout>
+    
+	<TextView  
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content" 
+	    android:text="@string/messagehead"
+	    />
+	<EditText
+		android:id="@+id/editTextMessage" 
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"/>
+	<LinearLayout
+	    android:orientation="horizontal"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center">
+		<Button
+			android:text="@string/send"
+			android:id="@+id/buttonSendMessage"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+	</LinearLayout>
+</LinearLayout>
+
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AndroidLabor8</string>
+    <string name="usernamehead">Felhasználónév:</string>
+    <string name="messagehead">Üzenet:</string>
+    <string name="left">Bal</string>
+    <string name="right">Jobb</string>
+    <string name="up">Fel</string>
+    <string name="down">Le</string>
+    <string name="send">Küldés</string>
+    <string name="empty_user">Üres felhasználónév!</string>
+    <string name="empty_user_or_message">Üres felhasználónév vagy jelszó!</string>
+</resources>
+
+public class ActivityAndroidLabor8 extends Activity
+{
+	private LinearLayout bgLayout;
+	private EditText etUserName;
+	private Button btnLeft;
+	private Button btnRight;
+	private Button btnUp;
+	private Button btnDown;
+	private EditText etMessage;
+	private Button btnSendMessage;
+	
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
+		bgLayout = (LinearLayout)findViewById(R.id.bgLayout);
+		etUserName = (EditText)findViewById(R.id.editTextUserName);
+		btnLeft = (Button)findViewById(R.id.buttonLeft);
+		btnRight = (Button)findViewById(R.id.buttonRight);
+		btnUp = (Button)findViewById(R.id.buttonUp);
+		btnDown = (Button)findViewById(R.id.buttonDown);
+		etMessage = (EditText)findViewById(R.id.editTextMessage);
+		btnSendMessage = (Button)findViewById(R.id.buttonSendMessage);
+	}
+}
+
+3.3
+
+3.3.1
+
+public class HttpManager {
+	
+	public interface HttpManagerListener {
+		public void responseArrived(String aResponse);
+		public void errorOccured(String aError);
+	}
+	
+	public static final int EMESSAGE_LEFT = 1;
+	public static final int EMESSAGE_RIGHT = 2;
+	public static final int EMESSAGE_UP = 3;
+	public static final int EMESSAGE_DOWN = 4;
+	
+	private HttpManagerListener listener;
+	
+	public HttpManager(HttpManagerListener aListener)
+	{
+		listener = aListener;
+	}
+	
+	public void execute(String url)
+	{
+	    HttpClient httpclient = new DefaultHttpClient();
+	    InputStream is = null;
+	    HttpGet httpget = new HttpGet(url); 
+	    HttpResponse response;
+	    try {
+	        response = httpclient.execute(httpget);
+	        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
+	        {
+		        HttpEntity entity = response.getEntity();
+		        if (entity != null) {
+		            is = entity.getContent();
+		            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					int inChar;
+					while ((inChar = is.read()) != -1)
+					{
+						bos.write(inChar);
+					}
+					
+					listener.responseArrived(bos.toString());
+		        }
+		        else
+		        	listener.errorOccured("HttpEntity is empty");
+	        }
+	    } catch (Exception e) {
+	    	listener.errorOccured(e.getMessage());
+	    } finally {
+	    	if (is != null)
+	    	{
+	    		try {
+	    			is.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	    	}
+	    }
+	}
+}
+
+3.3.2
+
+Activity elejére:
+
+private HttpManager httpManager = new HttpManager(this);
+private final String BASE_URL =
+    "http://avalon.aut.bme.hu/~tyrael/labyrinthwar/";
+
+Activity implementálja a HttpManagerListener-t.
+
+public void responseArrived(final String aMessage)
+{
+	runOnUiThread(new Runnable() {
+		@Override
+		public void run() {
+	    	showMessage(aMessage);
+		}
+	});
+}
+
+public void errorOccured(final String aError)
+{
+	runOnUiThread(new Runnable() {
+		@Override
+		public void run() {
+	    	showMessage(aError);
+		}
+	});
+}
+
+public void showMessage(String aMessage)
+{
+	Toast.makeText(this, aMessage, Toast.LENGTH_SHORT).show();	
+}
+
+public void handleMoveMessage(int aStepCode)
+{
+	if (etUserName.getText().toString().equals(""))
+	{
+		showMessage(getString(R.string.empty_user));
+		return;
+	}
+	
+	final StringBuilder sb = new StringBuilder(BASE_URL);
+	sb.append("moveuser.php?username=");
+	sb.append(URLEncoder.encode(etUserName.getText().toString()));
+	sb.append("&step=");
+	sb.append(aStepCode);
+	
+	new Thread() {
+		public void run()
+		{
+			httpManager.execute(sb.toString());
+		}
+	}.start();
+}
+
+Activity onCreate()-ba a gombok referenciájának elkérése után:
+
+btnLeft.setOnClickListener(new OnClickListener() {
+	@Override
+	public void onClick(View v) {
+		if (etUserName.isEnabled())
+				etUserName.setEnabled(false);
+		handleMoveMessage(HttpManager.EMESSAGE_LEFT);
+	}
+});
+btnRight.setOnClickListener(new OnClickListener() {
+	@Override
+	public void onClick(View v) {
+		if (etUserName.isEnabled())
+			etUserName.setEnabled(false);
+		handleMoveMessage(HttpManager.EMESSAGE_RIGHT);
+	}
+});
+btnUp.setOnClickListener(new OnClickListener() {
+	@Override
+	public void onClick(View v) {
+		if (etUserName.isEnabled())
+			etUserName.setEnabled(false);
+		handleMoveMessage(HttpManager.EMESSAGE_UP);
+	}
+});
+btnDown.setOnClickListener(new OnClickListener() {
+	@Override
+	public void onClick(View v) {
+		if (etUserName.isEnabled())
+			etUserName.setEnabled(false);
+		handleMoveMessage(HttpManager.EMESSAGE_DOWN);
+	}
+});
+
+3.4
+
+public void handleWriteCommentMessage()
+{
+	if (etUserName.getText().toString().equals("") || etMessage.getText().equals(""))
+	{
+		showMessage(getString(R.string.empty_user_or_message));
+		return;
+	}
+	
+	final StringBuilder sb = new StringBuilder(BASE_URL);
+	sb.append("writemessage.php?username=");
+	sb.append(URLEncoder.encode(etUserName.getText().toString()));
+	sb.append("&message=");
+	sb.append(URLEncoder.encode(etMessage.getText().toString()));
+	
+	new Thread() {
+		public void run()
+		{
+			httpManager.execute(sb.toString());
+		}
+	}.start();
+}
+
+Activity onCreate()-ba:
+
+btnSendMessage.setOnClickListener(new OnClickListener() {
+	@Override
+	public void onClick(View v) {
+		handleWriteCommentMessage();
+	}
+});
+
+3.5
+
+3.5.1
+
+public void responseArrived(final String aMessage)
+{
+	runOnUiThread(new Runnable() {
+		@Override
+		public void run() {
+			if (aMessage.startsWith("ERROR"))
+	    	{
+	    		((LinearLayout)findViewById(R.id.bgLayout)).
+                      setBackgroundColor(Color.RED);
+	    		TimerTaskResetBackground ttbg = 
+                      new TimerTaskResetBackground();
+	    		timer.schedule(ttbg, 300);
+	    	}
+	    	
+	    	showMessage(aMessage);
+		}
+	});
+}
+
+private Timer timer = new Timer();
+
+private class TimerTaskResetBackground extends TimerTask
+{
+	@Override
+	public void run() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				bgLayout.setBackgroundColor(Color.BLACK);
+			}
+		});
+	}
+}
+
+3.5.2
+
+res/anim/pushanim.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shareInterpolator="false">
+    <scale
+        android:interpolator="@android:anim/accelerate_interpolator"
+        android:fromXScale="1.0"
+        android:toXScale="0.7"
+        android:fromYScale="1.0"
+        android:toYScale="0.7"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:duration="100" />
+
+    <scale
+        android:interpolator="@android:anim/accelerate_interpolator"
+        android:fromXScale="0.7"
+        android:toXScale="1.0"
+        android:fromYScale="0.7"
+        android:toYScale="1.0"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:startOffset="100"
+        android:duration="100" />
+</set>
+
+Activity onCreate-be a gombok eseménykezelõjén belülre 4*:
+
+Animation showAnim = AnimationUtils.loadAnimation(
+		ActivityAndroidLabor8.this,
+		R.anim.pushanim);
+// btnLeft helyett a megfelelõ gombok referenciája kell a többi esetben
+btnLeft.startAnimation(showAnim);
+
+3.5.3
+
+res/anim/fadeanim.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shareInterpolator="false"> 
+    <alpha
+		android:fromAlpha="1.0"
+		android:toAlpha="0.5"
+		android:duration="600"/>
+	<alpha
+		android:fromAlpha="0.5"
+		android:toAlpha="1.0"
+		android:startOffset="600"
+		android:duration="600"/>
+</set>
+
+Activity onCreate-be a küldés gomb eseménykezelõjén belülre:
+
+Animation showAnim = AnimationUtils.loadAnimation(
+	ActivityAndroidLabor8.this,
+	R.anim.fadeanim);
+etMessage.startAnimation(showAnim);
+
+

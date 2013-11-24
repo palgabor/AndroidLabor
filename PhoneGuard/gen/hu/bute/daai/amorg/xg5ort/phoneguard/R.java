@@ -9,8 +9,10 @@ package hu.bute.daai.amorg.xg5ort.phoneguard;
 
 public final class R {
     public static final class array {
-        public static final int emergency_frequency_options=0x7f040000;
-        public static final int emergency_frequency_values=0x7f040001;
+        public static final int emergency_frequency_options=0x7f040002;
+        public static final int emergency_frequency_values=0x7f040003;
+        public static final int preferred_communication_options=0x7f040000;
+        public static final int preferred_communication_values=0x7f040001;
     }
     public static final class attr {
     }
@@ -19,16 +21,17 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f050000;
-        public static final int emergency_frequency=0x7f050008;
-        public static final int emergency_frequency_summary=0x7f050009;
-        public static final int emergency_frequency_title=0x7f05000a;
-        public static final int password=0x7f050006;
-        public static final int password_summary=0x7f050007;
+        public static final int emergency_frequency=0x7f050009;
+        public static final int emergency_frequency_summary=0x7f05000a;
+        public static final int emergency_frequency_title=0x7f05000b;
+        public static final int password=0x7f050007;
+        public static final int password_summary=0x7f050008;
+        public static final int phone_number=0x7f050005;
+        public static final int phone_number_summary=0x7f050006;
+        public static final int preferred_communication=0x7f050002;
+        public static final int preferred_communication_summary=0x7f050003;
+        public static final int preferred_communication_title=0x7f050004;
         public static final int settings=0x7f050001;
-        public static final int telephone_number=0x7f050004;
-        public static final int telephone_number_summary=0x7f050005;
-        public static final int use_internet=0x7f050002;
-        public static final int use_internet_summary=0x7f050003;
     }
     public static final class style {
         /** 

@@ -1,7 +1,7 @@
 package hu.bute.daai.amorg.xg5ort.phoneguard.parser;
 
 
-import hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService;
+import hu.bute.daai.amorg.xg5ort.data.SharedPreferencesConstants;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,12 +24,19 @@ public class SmsParser
 	public static final int ACTION_STOP_EMERGENCY = 6;
 	public static final int ACTION_SETTINGS = 7;
 	public static final int ACTION_EMERGENCY_TIME_BASE = 1000;
+	
+	public static final String BAD_PASSWORD_STR = "Bad password";
+	public static final String ACTION_UNKNOWN_STR = "Action unknown";
+	public static final String ACTION_EMERGENCY_WITHOUT_TIME_STR = "Emergency state started with default time";
+	public static final String ACTION_STOP_EMERGENCY_STR = "Emergency state stopped";
+	public static final String ACTION_SETTINGS_STR= "Settings";
+	public static final String ACTION_EMERGENCY_TIME_BASE_STR = "Emergency sate started with given time";
 
 	private final String SEPARATOR = "#";
 	private final String SMS_STARTER = "[PG]";
-	public static final String ACTION_EMERGENCY_STR = "emer";
-	public static final String ACTION_STOP_EMERGENCY_STR = "stop emer";
-	public static final String ACTION_SETTINGS_STR = "set";
+	public static final String ACTION_EMERGENCY_SMS = "emer";
+	public static final String ACTION_STOP_EMERGENCY_SMS = "stop emer";
+	public static final String ACTION_SETTINGS_SMS = "set";
 	
 	public static final String HOUR = "h";
 	public static final String MINUTE = "m";
@@ -56,7 +63,7 @@ public class SmsParser
 	public void fetchPassword()
 	{
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-		password = preferences.getString(DatabaseService.PASSWORD, "");
+		password = preferences.getString(SharedPreferencesConstants.PASSWORD, "");
 	}
 	
 	public int parse(String body)
@@ -80,15 +87,15 @@ public class SmsParser
 	
 	public int findAction(String body)
 	{
-		if(body.contains(ACTION_STOP_EMERGENCY_STR))
+		if(body.contains(ACTION_STOP_EMERGENCY_SMS))
 		{
 			return ACTION_STOP_EMERGENCY;
 		}
-		else if(body.contains(ACTION_EMERGENCY_STR))
+		else if(body.contains(ACTION_EMERGENCY_SMS))
 		{
 			return getTimeValue(body);
 		}
-		else if(body.contains(ACTION_SETTINGS_STR))
+		else if(body.contains(ACTION_SETTINGS_SMS))
 		{
 			return ACTION_SETTINGS;
 		}
@@ -103,7 +110,7 @@ public class SmsParser
 		Pattern p = Pattern.compile("([1-9]|[1-9]\\d+)(" + HOUR + "|" + MINUTE + ")");
 		Matcher m = p.matcher(msg);
 		
-		if(msg.equals(SMS_STARTER + SEPARATOR + password + SEPARATOR + ACTION_EMERGENCY_STR))
+		if(msg.equals(SMS_STARTER + SEPARATOR + password + SEPARATOR + ACTION_EMERGENCY_SMS))
 		{
 			return ACTION_EMERGENCY_WITHOUT_TIME;
 		}else if(m.find() == false)

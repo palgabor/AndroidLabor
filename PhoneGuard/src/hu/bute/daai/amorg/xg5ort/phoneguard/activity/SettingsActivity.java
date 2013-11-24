@@ -11,5 +11,6 @@ public class SettingsActivity extends PreferenceActivity
 	{
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
+		//TODO don't let to exit before fill phone number and password fielads
 	}
 }

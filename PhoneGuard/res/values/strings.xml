@@ -1,11 +1,13 @@
 <resources>
     <string name="app_name">PhoneGuard</string>
     <string name="settings">PhoneGuard</string>
-    <string name="use_internet">Use internet</string>
-    <string name="use_internet_summary">Use internet connection if available (instead of SMS).</string>
+    
+    <string name="preferred_communication">Preferred communication mode</string>
+    <string name="preferred_communication_summary">Preferred communication mode in emergency state.</string>
+    <string name="preferred_communication_title">Preferred communication mode</string>
         
-    <string name="telephone_number">Telephone number</string>    
-    <string name="telephone_number_summary">Telephone number where the application 
+    <string name="phone_number">Telephone number</string>    
+    <string name="phone_number_summary">Telephone number where the application 
         									sends SMS in emergency state.</string>        
     
     <string name="password">Password</string>    
