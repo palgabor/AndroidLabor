@@ -1,0 +1,621 @@
+3.1
+
+Manifest-be:
+
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.CAMERA"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+strings.xml-be:
+
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kamera labor</string>
+    <string name="action_settings">Settings</string>
+    <string name="lblCamera">Kamerakép:</string>
+    <string name="btnTakePicture">Photo</string>
+    <string name="btnEffect">Negatív</string>
+</resources>
+
+main.xml-be:
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <hu.bme.kameralabor.widget.DrawerImageView
+        android:id="@+id/ivDrawer"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/noimage" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <ImageButton
+            android:id="@+id/imgBtnPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_camera" />
+
+        <ImageButton
+            android:id="@+id/imgBtnUpload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_upload" />
+
+        <ImageButton
+            android:id="@+id/imgBtnDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_delete" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
+DrawerImageView osztály:
+
+public class DrawerImageView extends ImageView {
+
+	private ArrayList<PointF> touchPoints = new ArrayList<PointF>();;
+	
+	public DrawerImageView(Context context, AttributeSet attrs) {
+		super(context,attrs);
+		setDrawingCacheEnabled(true);
+	}
+
+	@Override
+	protected void onDraw(Canvas canvas) {
+		super.onDraw(canvas);
+		Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		mPaint.setColor(0x44FF0000);
+		for (int i=0; i<touchPoints.size(); i++)
+		{
+			canvas.drawCircle(touchPoints.get(i).x, touchPoints.get(i).y, 5, mPaint);
+		}
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN)
+		{
+			touchPoints.add(new PointF(event.getX(), event.getY()));
+		}
+		this.invalidate();
+		return super.onTouchEvent(event);
+	}
+	
+	public void clearDrawing()
+	{
+		touchPoints.clear();
+		this.invalidate();
+	}
+}
+
+Activity:
+
+public class ActivityLabor9 extends Activity {
+	public static final String APPTAG = "ANDLAB9";
+	public static final String IMAGEPATH = 
+		Environment.getExternalStorageDirectory().getAbsolutePath() + "/tmp_image.jpg";
+	public static final String MYCAMRESULT = "MYCAM";
+	
+	private final int REQUEST_CAMERA_IMAGE = 101;
+	private final int REQUEST_MY_CAMERA_IMAGE = 102;
+	private DrawerImageView ivDrawer;
+	
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+        
+        ivDrawer = (DrawerImageView)findViewById(R.id.ivDrawer);
+        
+        final ImageButton imgBtnDelete = (ImageButton)findViewById(R.id.imgBtnDelete);
+        imgBtnDelete.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ivDrawer.clearDrawing();
+			}
+		});
+        
+        final ImageButton imgBtnPhoto = (ImageButton)findViewById(R.id.imgBtnPhoto);
+        imgBtnPhoto.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				File imageFile = new File(IMAGEPATH);
+		    	Uri imageFileUri = Uri.fromFile(imageFile);
+		    	
+		    	Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);  
+		    	cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageFileUri);
+		    	startActivityForResult(cameraIntent, REQUEST_CAMERA_IMAGE);
+			}
+		});
+    }
+    
+	// Visszatérés a kamerától
+    @Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    if (requestCode == REQUEST_CAMERA_IMAGE) {
+			if (resultCode == RESULT_OK)
+			{
+				try {
+					File imageFile = new File(IMAGEPATH);
+			    	FileInputStream fis = new FileInputStream(imageFile);
+					Bitmap img = BitmapFactory.decodeStream(fis);
+					ivDrawer.setImageBitmap(img);
+				} catch(Exception e) {}
+			}
+	    }
+	}
+}
+
+3.2.
+
+public class AsyncTaskUploadImage extends AsyncTask<String, Void, String> {
+
+	public interface UploadCompleteListener {
+		   public void onTaskComplete(String aResult);
+		   public void onError(String aError);
+	}
+	
+	private Context context = null;
+	private ProgressDialog progressDialog = null;
+	private byte[] imageToUpload;
+	private UploadCompleteListener listener;
+	private String error = null;
+
+	public AsyncTaskUploadImage(Context context, byte[] aImageToUpload, UploadCompleteListener aListener) {
+	    this.context = context; 
+	    imageToUpload = aImageToUpload;
+	    listener = aListener;
+	}
+	
+	@Override
+	protected void onPreExecute() {
+		progressDialog = new ProgressDialog(this.context);
+	    progressDialog.setMessage("Kérem várjon...");
+	    progressDialog.show();
+	}
+	
+	@Override
+	protected String doInBackground(String... params) {
+		String result = "";
+	    HttpClient httpclient = new DefaultHttpClient();
+	    InputStream is = null;
+	    HttpPost httpPost = new HttpPost(params[0]); 
+	    MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+	    ByteArrayBody bab = new ByteArrayBody(imageToUpload, "tmp.jpg");
+        reqEntity.addPart("img", bab);
+        httpPost.setEntity(reqEntity);
+	    HttpResponse response;
+	    try {
+	        response = httpclient.execute(httpPost);
+	        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK)
+	        {
+		        HttpEntity entity = response.getEntity();
+		        if (entity != null) {
+		            
+		        	BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent(), "UTF-8"));
+		        	StringBuilder sb = new StringBuilder();
+		        	String line;
+		        	while ((line = reader.readLine()) != null) {
+		        		sb.append(line);
+		        	}
+
+		        	result = sb.toString();
+		        }
+		        else
+		        	error = "HttpEntity is empty";
+	        }
+	    } catch (Exception e) {
+	    	error = "Error: "+e.getMessage();
+	    } finally {
+	    	if (is != null)
+	    	{
+	    		try {
+	    			is.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	    	}
+	    }
+	    return result;
+	}
+	
+	@Override
+	protected void onPostExecute(String result) {
+	    progressDialog.dismiss();
+	    if (error != null) {
+	    	listener.onError(error);
+	    }
+	    else {
+	    	listener.onTaskComplete(result);
+	    }
+	}
+}
+
+Activity implementálja az UploadCompleteListener-t:
+
+@Override
+public void onTaskComplete(String aResult) {
+	Toast.makeText(this, aResult, Toast.LENGTH_LONG).show();
+}
+
+@Override
+public void onError(String aError) {
+	Toast.makeText(this, aError, Toast.LENGTH_LONG).show();
+}
+
+Activity onCreate(...)-be:
+
+final ImageButton imgBtnUpload = (ImageButton)findViewById(R.id.imgBtnUpload);
+imgBtnUpload.setOnClickListener(new OnClickListener() {
+	@Override
+	public void onClick(View v) {
+		
+		ivDrawer.invalidate();
+		ivDrawer.refreshDrawableState();
+		Bitmap bm = ivDrawer.getDrawingCache();
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+		bm.compress(Bitmap.CompressFormat.JPEG, 70, baos);
+		byte[] b = baos.toByteArray();  
+		AsyncTaskUploadImage taskUpload = new AsyncTaskUploadImage(ActivityLabor9.this, b, ActivityLabor9.this);
+		taskUpload.execute("http://atleast.aut.bme.hu/AndroidGallery/api.php?action=uploadImage");
+	}
+});
+
+3.3.
+
+public class MyPreview extends SurfaceView implements SurfaceHolder.Callback {
+
+	// Log tag
+	public static final String TAG = MyPreview.class.getSimpleName();
+
+	// State
+	private SurfaceHolder mHolder;
+	private Camera mCamera;
+
+	public MyPreview(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+		init();
+	}
+
+	public MyPreview(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		init();
+	}
+
+	public MyPreview(Context context) {
+		super(context);
+		init();
+	}
+
+	private void init() {
+		mHolder = getHolder();
+		mHolder.addCallback(this);
+	}
+
+	public void setCamera(Camera camera) {
+		mCamera = camera;
+
+		try {
+			mCamera.setPreviewDisplay(mHolder);
+			mCamera.startPreview();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d(TAG, "Failed to start camera preview!");
+		}
+	}
+
+	@Override
+	public void surfaceCreated(SurfaceHolder holder) {
+		// Not used
+	}
+
+	@Override
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		// Not used
+	}
+
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+
+		if (mHolder.getSurface() == null || mCamera == null) {
+			return;
+		}
+
+		try {
+			mCamera.stopPreview();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d(TAG, "Tried to stop a non-existing camera preview!");
+		}
+
+		try {
+			mCamera.setPreviewDisplay(mHolder);
+			mCamera.startPreview();
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.d(TAG, "Failed to restart camera preview!");
+		}
+	}
+}
+
+public class CameraActivity extends Activity {
+
+	// State
+	private Camera camera;
+
+	// UI
+	private ViewGroup previewLayout;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_camera);
+
+		Button btnTakePicture = (Button) findViewById(R.id.btnTakePicture);
+		btnTakePicture.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// get an image from the camera
+				camera.takePicture(null, null, mPicture);
+			}
+		});
+
+		ToggleButton btnEffect = (ToggleButton) findViewById(R.id.btnEffect);
+		btnEffect.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				Camera.Parameters parameters = camera.getParameters();
+
+				if (isChecked) {
+					parameters.setColorEffect(Parameters.EFFECT_NEGATIVE);
+				} else {
+					parameters.setColorEffect(Parameters.EFFECT_NONE);
+				}
+
+				camera.setParameters(parameters);
+			}
+		});
+		btnEffect.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Camera.Parameters parameters = camera.getParameters();
+				parameters.setColorEffect(Parameters.EFFECT_NEGATIVE);
+				camera.setParameters(parameters);
+			}
+		});
+
+		previewLayout = (ViewGroup) findViewById(R.id.camera_preview);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		CameraTask task = new CameraTask();
+		task.execute();
+	}
+
+	@Override
+	protected void onPause() {
+		if (camera != null) {
+			camera.stopPreview();
+			camera.release();
+		}
+
+		super.onPause();
+	}
+
+	private PictureCallback mPicture = new PictureCallback() {
+		@Override
+		public void onPictureTaken(byte[] data, Camera camera) {
+			String result = "";
+			try {
+				File tmpImage = new File(MainActivity.IMAGEPATH);
+				if (tmpImage.exists())
+					tmpImage.delete();
+				tmpImage.createNewFile();
+				FileOutputStream buf = new FileOutputStream(tmpImage);
+				buf.write(data);
+				buf.flush();
+				buf.close();
+				result = "OK";
+			} catch (Exception e) {
+				result = "ERROR: " + e.getMessage();
+			}
+
+			Intent resultIntent = new Intent();
+			resultIntent.putExtra(MainActivity.MYCAMRESULT, result);
+			setResult(MainActivity.RESULT_OK, resultIntent);
+			finish();
+		}
+	};
+
+	private class CameraTask extends AsyncTask<Void, Void, Camera> {
+
+		private static final int MAX_RETRY_COUNT = 3;
+
+		@Override
+		protected Camera doInBackground(Void... params) {
+			Camera result = null;
+			int trialCount = 0;
+
+			while (result == null && trialCount < MAX_RETRY_COUNT) {
+				result = Camera.open(0);
+				trialCount++;
+			}
+
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(Camera result) {
+			super.onPostExecute(result);
+
+			if (result != null) {
+				camera = result;
+
+				// Lekerdezzuk a lehetseges preview mereteket
+				List<Size> supportedPreviewSizes = camera.getParameters()
+						.getSupportedPreviewSizes();
+
+				// Kiszorjuk azokat, amik tul nagyok a rendelkezesre allo
+				// merethez kepest
+				int availableWidth = previewLayout.getWidth();
+				int availableHeight = previewLayout.getHeight();
+
+				Iterator<Size> iter = supportedPreviewSizes.iterator();
+				while (iter.hasNext()) {
+					Size current = iter.next();
+					if (current.width > availableWidth
+							|| current.height > availableHeight) {
+						iter.remove();
+					}
+				}
+
+				// A maradeknak vesszuk a maximumat
+				Size selectedPreviewSize = Collections.max(
+						supportedPreviewSizes, new Comparator<Camera.Size>() {
+							@Override
+							public int compare(Size lhs, Size rhs) {
+								return (lhs.width * lhs.height) < (rhs.width * rhs.height) ? -1
+										: 1;
+							}
+						});
+
+				// Letrehozzuk a Preview View-t a kivalasztott meretekkel es
+				// hozzaadjuk a layout-hoz
+				previewLayout.removeAllViews();
+
+				MyPreview myPreview = new MyPreview(CameraActivity.this);
+				RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+						selectedPreviewSize.width, selectedPreviewSize.height);
+				myPreview.setLayoutParams(lp);
+
+				previewLayout.addView(myPreview);
+
+				// Bellitjuk a kameranak is a kivalasztott preview felbontast
+				// majd odaadjuk a Preview nezetunknek
+				camera.getParameters().setPreviewSize(
+						selectedPreviewSize.width, selectedPreviewSize.height);
+				myPreview.setCamera(camera);
+			} else {
+				Toast.makeText(CameraActivity.this,
+						"Nem sikerult a kamera inicializalasa!",
+						Toast.LENGTH_SHORT).show();
+			}
+		}
+
+	}
+}
+
+layoutcamera.xml:
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/camera_preview"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:gravity="center" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btnTakePicture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btnTakePicture" />
+
+        <ToggleButton
+            android:id="@+id/btnEffect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="@string/btnEffect"
+            android:textOff="@string/btnEffect" />
+    </LinearLayout>
+
+</LinearLayout>
+
+main.xml kiegészítése új gombbal:
+<ImageButton
+	android:id="@+id/imgBtnOwnPhoto"
+	android:layout_height="wrap_content"
+	android:layout_width="wrap_content"
+	android:src="@android:drawable/ic_menu_gallery"
+/>
+
+Eredeti Activity onCreate(...)-jébe:
+
+final ImageButton imgBtnOwnPhoto = (ImageButton)findViewById(R.id.imgBtnOwnPhoto);
+imgBtnOwnPhoto.setOnClickListener(new OnClickListener() {
+	@Override
+	public void onClick(View v) {
+		Intent i = new Intent(getApplicationContext(), ActivityMyCamera.class);
+		startActivityForResult(i, REQUEST_MY_CAMERA_IMAGE);
+	}
+});
+
+Eredeti Activity onActivityResult(...)-jának kiegészítése:
+
+else if (requestCode == REQUEST_MY_CAMERA_IMAGE) {
+	if (resultCode == RESULT_OK)
+	{
+		String camResult = data.getExtras().getString(MYCAMRESULT);
+		
+		if (camResult.startsWith("OK"))
+		{
+			try {
+				File imageFile = new File(IMAGEPATH);
+		    	FileInputStream fis = new FileInputStream(imageFile);
+				Bitmap img = BitmapFactory.decodeStream(fis);
+				ivDrawer.setImageDrawable(new BitmapDrawable(getResources(), img));
+				ivDrawer.invalidate();
+				ivDrawer.refreshDrawableState();
+			} catch(Exception e) {}
+		}
+		else
+		{
+			Toast.makeText(this, camResult, Toast.LENGTH_LONG).show();
+		}
+	}
+}
+
+Manifest-be:
+
+<activity
+    android:name=".CameraActivity"
+    android:screenOrientation="landscape"
+    android:label="@string/app_name" >
+</activity>
+
+
+
+
+
+
+
+
