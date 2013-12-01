@@ -18,6 +18,10 @@ public class SmsReceiver extends BroadcastReceiver
 		String sms = readSms(intent);
 		int result = parse(parser,sms);
 		switchAction(context, result);
+		//TODO [PG]#<password>#start sms
+		//TODO [PG]#<password>#stop sms
+		//TODO [PG]#<password>#start internet
+		//TODO [PG]#<password>#stop internet		
 	}
 	
 	public String readSms(Intent intent)

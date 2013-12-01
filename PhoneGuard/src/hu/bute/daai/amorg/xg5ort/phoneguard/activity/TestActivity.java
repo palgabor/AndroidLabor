@@ -113,7 +113,6 @@ public class TestActivity extends Activity
 				displayData.append("Password: " + preferences.getString(SharedPreferencesConstants.PASSWORD, "N.A.") + "\n");
 				displayData.append("Emergency frequency: " + preferences.getString(SharedPreferencesConstants.EMERGENCY_FREQUENCY, "N.A.") + "\n");
 				displayData.append("Is emergency state: " + String.valueOf(preferences.getBoolean(SharedPreferencesConstants.IS_EMERGENCY_STATE, false)) + "\n");
-				displayData.append("Sender phone number: " + preferences.getString(SharedPreferencesConstants.SENDER_PHONE_NUMBER, "N.A.") + "\n");
 				displayData.append("IMEI: " + preferences.getString(SharedPreferencesConstants.IMEI, "N.A.") + "\n");
 				displayData.append("IMSI: " + preferences.getString(SharedPreferencesConstants.IMSI, "N.A.") + "\n");
 				displayData.append("Operator: " + preferences.getString(SharedPreferencesConstants.OPERATOR_NAME, "N.A.") + "\n");
@@ -126,7 +125,6 @@ public class TestActivity extends Activity
 				DeviceData deviceData = DeviceData.getInstance();
 				displayData.setText("");
 				displayData.append("Display device data:\n");
-				displayData.append("MSISDN: " + deviceData.getMsisdn() + "\n");
 				displayData.append("IMEI: " + deviceData.getImei() + "\n");
 				displayData.append("IMSI: " + deviceData.getImsi() + "\n");
 				displayData.append("Operator: " + deviceData.getOperatorName() + "\n");
@@ -149,6 +147,5 @@ public class TestActivity extends Activity
 				displayData.append("Time: " + locationData.getTime() + "\n");
 			}
 		});
-		
 	}
 }

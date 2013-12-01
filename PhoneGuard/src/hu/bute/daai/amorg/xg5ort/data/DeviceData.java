@@ -2,7 +2,6 @@ package hu.bute.daai.amorg.xg5ort.data;
 
 public class DeviceData
 {
-	private String msisdn = "N.A.";
 	private String imei = "N.A.";
 	private String imsi = "N.A.";
 	private String operatorName = "N.A.";
@@ -24,10 +23,6 @@ public class DeviceData
 		return instance;
 	}
 
-	public String getMsisdn() {
-		return msisdn;
-	}
-
 	public String getImei() {
 		return imei;
 	}
@@ -38,10 +33,6 @@ public class DeviceData
 
 	public String getOperatorName() {
 		return operatorName;
-	}
-
-	public void setMsisdn(String msisdn) {
-		this.msisdn = msisdn;
 	}
 
 	public void setImei(String imei) {

@@ -34,7 +34,6 @@ public class BootHandlerService extends Service
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		DeviceData deviceData = DeviceData.getInstance();
 		
-		deviceData.setMsisdn(preferences.getString(SharedPreferencesConstants.PHONE_NUMBER, ""));
 		deviceData.setImei(preferences.getString(SharedPreferencesConstants.IMEI, ""));
 		deviceData.setImsi(preferences.getString(SharedPreferencesConstants.IMSI, ""));
 		deviceData.setOperatorName(preferences.getString(SharedPreferencesConstants.OPERATOR_NAME, ""));
@@ -58,8 +57,7 @@ public class BootHandlerService extends Service
 		DeviceData deviceData = DeviceData.getInstance();
 		TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
 		
-		if(deviceData.getMsisdn().equals(telephonyManager.getLine1Number()) &&
-		   deviceData.getImei().equals(telephonyManager.getDeviceId()) &&
+		if(deviceData.getImei().equals(telephonyManager.getDeviceId()) &&
 		   deviceData.getImsi().equals(telephonyManager.getSubscriberId()) &&
 		   deviceData.getOperatorName().equals(telephonyManager.getNetworkOperatorName())
 		  )

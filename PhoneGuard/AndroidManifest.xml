@@ -13,7 +13,9 @@
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />	
+	
+	
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -46,17 +48,11 @@
             </intent-filter>
         </receiver>
         
-        <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService">
-        </service>
-        
-        <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.BootHandlerService">
-        </service>
-        
-        <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService">
-        </service>
-        
-        <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.SmsSenderService">
-        </service>
+        <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService" />
+        <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.BootHandlerService" />
+        <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService" />
+        <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.SmsSenderService" />
+        <service android:name="hu.bute.daai.amorg.xg5ort.phoneguard.service.LocationUpdateService" />
     </application>
 
 </manifest>

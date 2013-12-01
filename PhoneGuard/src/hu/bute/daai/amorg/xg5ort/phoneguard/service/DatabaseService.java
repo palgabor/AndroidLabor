@@ -2,6 +2,7 @@ package hu.bute.daai.amorg.xg5ort.phoneguard.service;
 
 import hu.bute.daai.amorg.xg5ort.data.DeviceData;
 import hu.bute.daai.amorg.xg5ort.data.LocationData;
+import hu.bute.daai.amorg.xg5ort.data.SharedPreferencesConstants;
 
 import java.util.Calendar;
 import java.util.List;
@@ -40,7 +41,7 @@ public class DatabaseService extends Service
 						  Calendar.getInstance().get(Calendar.DAY_OF_MONTH) + ". " + Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + ":" +
 						  Calendar.getInstance().get(Calendar.MINUTE) + ":" + Calendar.getInstance().get(Calendar.SECOND);
 			
-			Parse.initialize(this, "0baLdmQJInwexbzZaqZDf2IVFVbvtI8XY2er4TZk", "rVeek9zXKKpKrU6DjztnbH3Xg43xKDssx6tdQwrH");
+			Parse.initialize(this, SharedPreferencesConstants.PARSE_APPLICATION_ID, SharedPreferencesConstants.PARSE_CLIENT_ID);
 			ParseObject receivedSmsTable = new ParseObject("ReceivedSms");
 			
 			receivedSmsTable.put("Sender", extras.getString("sender"));
@@ -56,7 +57,7 @@ public class DatabaseService extends Service
 		{
 			LocationData locationData = LocationData.getInstance();
 			
-			Parse.initialize(this, "0baLdmQJInwexbzZaqZDf2IVFVbvtI8XY2er4TZk", "rVeek9zXKKpKrU6DjztnbH3Xg43xKDssx6tdQwrH");
+			Parse.initialize(this, SharedPreferencesConstants.PARSE_APPLICATION_ID, SharedPreferencesConstants.PARSE_CLIENT_ID);
 			ParseObject locationTable = new ParseObject("Location");
 			
 			locationTable.put("Time", String.valueOf(locationData.getTime()));
@@ -85,10 +86,9 @@ public class DatabaseService extends Service
 		{
 			DeviceData deviceData = DeviceData.getInstance();
 			
-			Parse.initialize(this, "0baLdmQJInwexbzZaqZDf2IVFVbvtI8XY2er4TZk", "rVeek9zXKKpKrU6DjztnbH3Xg43xKDssx6tdQwrH");
+			Parse.initialize(this, SharedPreferencesConstants.PARSE_APPLICATION_ID, SharedPreferencesConstants.PARSE_CLIENT_ID);
 			ParseObject deviceDataTable = new ParseObject("DeviceData");
 			
-			deviceDataTable.put("PhoneNumber", deviceData.getMsisdn());
 			deviceDataTable.put("IMEInumber", deviceData.getImei());
 			deviceDataTable.put("IMSInumber", deviceData.getImsi());
 			deviceDataTable.put("OperatorName", deviceData.getOperatorName());
