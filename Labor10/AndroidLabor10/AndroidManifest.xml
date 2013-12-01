@@ -19,7 +19,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="hu.bute.daai.amorg.xg5ort.androidlabor10.MainActivity"
+            android:name="hu.bute.daai.amorg.xg5ort.androidlabor10.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,7 +29,7 @@
         </activity>
         
         <activity
-		    android:name=".CameraActivity"
+		    android:name="hu.bute.daai.amorg.xg5ort.androidlabor10.activity.CameraActivity"
 		    android:screenOrientation="landscape"
 		    android:label="@string/app_name" >
 		</activity>

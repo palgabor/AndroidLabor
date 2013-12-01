@@ -1,4 +1,4 @@
-package hu.bute.daai.amorg.xg5ort.androidlabor10;
+package hu.bute.daai.amorg.xg5ort.androidlabor10.network;
 
 import java.io.BufferedReader;
 import java.io.IOException;

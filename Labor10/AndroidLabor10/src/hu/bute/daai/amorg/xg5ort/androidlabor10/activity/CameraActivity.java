@@ -1,4 +1,7 @@
-package hu.bute.daai.amorg.xg5ort.androidlabor10;
+package hu.bute.daai.amorg.xg5ort.androidlabor10.activity;
+
+import hu.bute.daai.amorg.xg5ort.androidlabor10.R;
+import hu.bute.daai.amorg.xg5ort.androidlabor10.view.MyPreview;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -8,11 +11,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
+import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -32,17 +38,25 @@ public class CameraActivity extends Activity {
 	// UI
 	private ViewGroup previewLayout;
 
+	private final ShutterCallback shutterCallback = new ShutterCallback() {
+        public void onShutter() {
+            AudioManager mgr = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            mgr.playSoundEffect(AudioManager.FLAG_PLAY_SOUND);
+        }
+    };
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.layoutcamera);
 
+		
 		Button btnTakePicture = (Button) findViewById(R.id.btnTakePicture);
 		btnTakePicture.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// get an image from the camera
-				camera.takePicture(null, null, mPicture);
+				camera.takePicture(shutterCallback, null, mPicture);
 			}
 		});
 

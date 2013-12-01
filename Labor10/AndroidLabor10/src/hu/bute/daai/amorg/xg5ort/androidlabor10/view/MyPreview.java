@@ -1,4 +1,4 @@
-package hu.bute.daai.amorg.xg5ort.androidlabor10;
+package hu.bute.daai.amorg.xg5ort.androidlabor10.view;
 
 import android.content.Context;
 import android.hardware.Camera;

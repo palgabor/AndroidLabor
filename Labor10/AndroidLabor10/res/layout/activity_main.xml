@@ -5,7 +5,7 @@
     android:gravity="center"
     android:orientation="vertical" >
 
-    <hu.bute.daai.amorg.xg5ort.androidlabor10.DrawerImageView
+    <hu.bute.daai.amorg.xg5ort.androidlabor10.view.DrawerImageView
         android:id="@+id/ivDrawer"
         android:layout_width="300dp"
         android:layout_height="300dp"
@@ -31,19 +31,22 @@
             android:src="@android:drawable/ic_menu_upload" />
 
         <ImageButton
+            android:id="@+id/imgBtnUploadWithoutDrawing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_upload" />
+
+        <ImageButton
             android:id="@+id/imgBtnDelete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_menu_delete" />
-        
-        <ImageButton
-			android:id="@+id/imgBtnOwnPhoto"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:src="@android:drawable/ic_menu_gallery"
-		/> 
 
+        <ImageButton
+            android:id="@+id/imgBtnOwnPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_gallery" />
     </LinearLayout>
 
 </LinearLayout>
- 

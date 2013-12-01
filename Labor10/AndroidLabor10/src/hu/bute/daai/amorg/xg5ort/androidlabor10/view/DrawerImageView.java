@@ -1,4 +1,4 @@
-package hu.bute.daai.amorg.xg5ort.androidlabor10;
+package hu.bute.daai.amorg.xg5ort.androidlabor10.view;
 
 import java.util.ArrayList;
 
@@ -13,6 +13,7 @@ import android.widget.ImageView;
 public class DrawerImageView extends ImageView {
 
 	private ArrayList<PointF> touchPoints = new ArrayList<PointF>();;
+	private Paint mPaint;
 	
 	public DrawerImageView(Context context, AttributeSet attrs) {
 		super(context,attrs);
@@ -22,8 +23,9 @@ public class DrawerImageView extends ImageView {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mPaint.setColor(0x44FF0000);
+		
 		for (int i=0; i<touchPoints.size(); i++)
 		{
 			canvas.drawCircle(touchPoints.get(i).x, touchPoints.get(i).y, 5, mPaint);
@@ -38,6 +40,14 @@ public class DrawerImageView extends ImageView {
 		}
 		this.invalidate();
 		return super.onTouchEvent(event);
+	}
+	
+	public void setColor(int color)
+	{
+		if(mPaint != null)
+		{
+			mPaint.setColor(color);
+		}
 	}
 	
 	public void clearDrawing()

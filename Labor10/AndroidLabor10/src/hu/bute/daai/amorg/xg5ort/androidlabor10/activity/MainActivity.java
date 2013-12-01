@@ -1,6 +1,9 @@
-package hu.bute.daai.amorg.xg5ort.androidlabor10;
+package hu.bute.daai.amorg.xg5ort.androidlabor10.activity;
 
-import hu.bute.daai.amorg.xg5ort.androidlabor10.AsyncTaskUploadImage.UploadCompleteListener;
+import hu.bute.daai.amorg.xg5ort.androidlabor10.R;
+import hu.bute.daai.amorg.xg5ort.androidlabor10.network.AsyncTaskUploadImage;
+import hu.bute.daai.amorg.xg5ort.androidlabor10.network.AsyncTaskUploadImage.UploadCompleteListener;
+import hu.bute.daai.amorg.xg5ort.androidlabor10.view.DrawerImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -10,6 +13,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +21,7 @@ import android.os.Environment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements UploadCompleteListener{
@@ -68,6 +73,7 @@ public class MainActivity extends Activity implements UploadCompleteListener{
         }); 
         
         final ImageButton imgBtnUpload = (ImageButton)findViewById(R.id.imgBtnUpload);
+        imgBtnUpload.setEnabled(false);
         imgBtnUpload.setOnClickListener(new OnClickListener() {
         	@Override
         	public void onClick(View v) {
@@ -81,7 +87,24 @@ public class MainActivity extends Activity implements UploadCompleteListener{
         		AsyncTaskUploadImage taskUpload = new AsyncTaskUploadImage(MainActivity.this, b, MainActivity.this);
         		taskUpload.execute("http://atleast.aut.bme.hu/AndroidGallery/api.php?action=uploadImage");
         	}
-        }); 
+        });
+        
+        final ImageButton imgBtnUploadWithoutDrawing = (ImageButton)findViewById(R.id.imgBtnUploadWithoutDrawing);
+        imgBtnUploadWithoutDrawing.setEnabled(false);
+        imgBtnUploadWithoutDrawing.setOnClickListener(new OnClickListener() {
+        	@Override
+        	public void onClick(View v) {
+        		ivDrawer.invalidate();
+        		ivDrawer.refreshDrawableState();
+        		Bitmap bm = ivDrawer.getDrawingCache();
+        		ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+        		bm.compress(Bitmap.CompressFormat.JPEG, 70, baos);
+        		byte[] b = baos.toByteArray();  
+        		AsyncTaskUploadImage taskUpload = new AsyncTaskUploadImage(MainActivity.this, b, MainActivity.this);
+        		taskUpload.execute("http://atleast.aut.bme.hu/AndroidGallery/api.php?action=uploadImage");
+        	}
+        });
+        
     }
     
 	// Visszatérés a kamerától
@@ -95,6 +118,8 @@ public class MainActivity extends Activity implements UploadCompleteListener{
 			    	FileInputStream fis = new FileInputStream(imageFile);
 					Bitmap img = BitmapFactory.decodeStream(fis);
 					ivDrawer.setImageBitmap(img);
+					findViewById(R.id.imgBtnUpload).setEnabled(true);
+					findViewById(R.id.imgBtnUploadWithoutDrawing).setEnabled(true);
 				} catch(Exception e) {}
 			}
 	    }
@@ -112,6 +137,8 @@ public class MainActivity extends Activity implements UploadCompleteListener{
 	    				ivDrawer.setImageDrawable(new BitmapDrawable(getResources(), img));
 	    				ivDrawer.invalidate();
 	    				ivDrawer.refreshDrawableState();
+	    				findViewById(R.id.imgBtnUpload).setEnabled(true);
+	    				findViewById(R.id.imgBtnUploadWithoutDrawing).setEnabled(true);
 	    			} catch(Exception e) {}
 	    		}
 	    		else
@@ -121,6 +148,7 @@ public class MainActivity extends Activity implements UploadCompleteListener{
 	    	}
 	    } 
 	}
+    
     
     @Override
     public void onTaskComplete(String aResult) {
