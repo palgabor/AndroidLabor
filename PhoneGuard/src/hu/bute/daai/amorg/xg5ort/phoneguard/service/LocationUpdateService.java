@@ -21,7 +21,6 @@ import android.telephony.NeighboringCellInfo;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
 import android.util.Log;
-import android.widget.Toast;
 
 public class LocationUpdateService extends Service
 {	
@@ -105,10 +104,6 @@ public class LocationUpdateService extends Service
 			locationData.setLongitude(location.getLongitude());
 			locationData.setSpeed(location.getSpeed());
 			locationData.setAccuracy(location.getAccuracy());
-			locationData.setTime(location.getTime());
-			
-			Toast.makeText(getApplicationContext(), "Location data changed to: " + location.getLatitude() + 
-					";" + location.getLongitude(), Toast.LENGTH_LONG).show();
 			
 			Geocoder geoCoder = new Geocoder(getApplicationContext(), Locale.getDefault());
 			try
@@ -117,10 +112,10 @@ public class LocationUpdateService extends Service
 				List<Address> addresses = geoCoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
 				if(addresses.size() > 0)
 				{
-					locationData.setAddress(addresses.get(0).getLocality());
-					
+					locationData.setAddress(addresses.get(0).getAddressLine(2) + "," + 
+							addresses.get(0).getAddressLine(0) + "," + addresses.get(0).getAddressLine(1));
 				}
-				Toast.makeText(getApplicationContext(), "Locality: " + locationData.getAddress(), Toast.LENGTH_LONG).show();
+				
 			}catch(IOException e)
 			{
 				e.printStackTrace();

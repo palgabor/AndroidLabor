@@ -60,7 +60,6 @@ public class DatabaseService extends Service
 			Parse.initialize(this, SharedPreferencesConstants.PARSE_APPLICATION_ID, SharedPreferencesConstants.PARSE_CLIENT_ID);
 			ParseObject locationTable = new ParseObject("Location");
 			
-			locationTable.put("Time", String.valueOf(locationData.getTime()));
 			locationTable.put("Address", locationData.getAddress());
 			locationTable.put("Latitude", String.valueOf(locationData.getLatitude()));
 			locationTable.put("Longitude", String.valueOf(locationData.getLongitude()));

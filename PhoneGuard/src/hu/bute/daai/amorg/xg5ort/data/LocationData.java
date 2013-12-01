@@ -10,7 +10,6 @@ public class LocationData
 	int cellId = 0, lac = 0;
 	double latitude = 0, longitude = 0;
 	float speed = 0, accuracy = 0;
-	long time = 0;
 	List<Integer> neighboringCellIds;
 	String address = "N.A.";
 	
@@ -59,10 +58,6 @@ public class LocationData
 		return accuracy;
 	}
 
-	public long getTime() {
-		return time;
-	}
-
 	public List<Integer> getNeighboringCellIds() {
 		return neighboringCellIds;
 	}
@@ -93,10 +88,6 @@ public class LocationData
 
 	public void setAccuracy(float accuracy) {
 		this.accuracy = accuracy;
-	}
-
-	public void setTime(long time) {
-		this.time = time;
 	}
 	
 	public void setAddress(String address){

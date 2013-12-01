@@ -144,7 +144,6 @@ public class TestActivity extends Activity
 				displayData.append("CellId: " + locationData.getCellId() + "\n");
 				displayData.append("Lac: " + locationData.getLac() + "\n");
 				displayData.append("Address: " + locationData.getAddress() + "\n");
-				displayData.append("Time: " + locationData.getTime() + "\n");
 			}
 		});
 	}
