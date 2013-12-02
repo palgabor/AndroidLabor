@@ -1,8 +1,7 @@
 package hu.bute.daai.amorg.xg5ort.phoneguard.service;
 
-import hu.bute.daai.amorg.xg5ort.data.DeviceData;
-import hu.bute.daai.amorg.xg5ort.data.SharedPreferencesConstants;
-import hu.bute.daai.amorg.xg5ort.phoneguard.parser.SmsParser;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.Constants;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.DeviceData;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -11,10 +10,10 @@ import android.content.SharedPreferences.Editor;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 public class EmergencyHandlerService extends Service
 {	
+	SharedPreferences preferences;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -24,53 +23,61 @@ public class EmergencyHandlerService extends Service
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
+		preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		String action = intent.getAction();
-		if(action.equals(SmsParser.ACTION_STOP_EMERGENCY_SMS))
+		if(action.equals(Constants.ACTION_STOP_EMERGENCY_SMS))
 		{
-			Log.d("PhoneGuardTag","Stop emergency sms arrived.");
-			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 			Editor editor = preferences.edit();
-			editor.putBoolean(SharedPreferencesConstants.IS_EMERGENCY_STATE, false);
+			editor.putBoolean(Constants.SP_IS_EMERGENCY_STATE, false);
+			editor.putInt(Constants.SP_TIME_TICKS, 0);
 			editor.commit();
 			
 			stopSelf();
 		}
-		else if(action.equals(SmsParser.ACTION_EMERGENCY_SMS))
+		else if(action.equals(Constants.ACTION_EMERGENCY_SMS))
 		{
+			refreshTime(intent);
 			startEmergencyState(intent);
 			fetchDeviceData();
 			fetchLocationData();
 			sendSms();
-			//TODO do these periodically according to the time variable
-			//TODO do these periodically according to the settings (can be changed during emergency situation)
 		}
+		else if(action.equals(Constants.ACTION_TIME_TICK))
+		{
+			fetchDeviceData();
+			fetchLocationData();
+			sendSms();
+		}
+		
+		stopSelf();
 		return START_REDELIVER_INTENT;
 	}
 	
-	private void startEmergencyState(Intent intent)
+	private void refreshTime(Intent intent)
 	{
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		
 		int time = intent.getIntExtra("timeValue", 0);
 		if(time == 0)
 		{
-			String timeStr = preferences.getString(SharedPreferencesConstants.EMERGENCY_FREQUENCY, "");
-			if(timeStr.equals("") == false)
+			String timeStr = preferences.getString(Constants.SP_EMERGENCY_FREQUENCY, "");
+			if(timeStr.equals(""))
 			{
-				time = Integer.parseInt(timeStr);
+				Editor editor = preferences.edit();
+				editor.putString(Constants.SP_EMERGENCY_FREQUENCY, String.valueOf(1));
+				editor.commit();
 			}
-			//TODO be careful, time variable can be empty here (0 as a default) 
 		}
 		else
 		{
 			Editor editor = preferences.edit();
-			editor.putString(SharedPreferencesConstants.EMERGENCY_FREQUENCY, String.valueOf(time));
+			editor.putString(Constants.SP_EMERGENCY_FREQUENCY, String.valueOf(time));
 			editor.commit();
 		}
-		//TODO refresh emergency requests according to this value
-		
+	}
+	
+	private void startEmergencyState(Intent intent)
+	{
 		Editor editor = preferences.edit();
-		editor.putBoolean(SharedPreferencesConstants.IS_EMERGENCY_STATE, true);
+		editor.putBoolean(Constants.SP_IS_EMERGENCY_STATE, true);
 		editor.commit();
 	}
 	
@@ -84,11 +91,10 @@ public class EmergencyHandlerService extends Service
 		   deviceData.getOperatorName().equals(telephonyManager.getNetworkOperatorName()) == false
 		  )
 		{
-			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 			Editor editor = preferences.edit();
-			editor.putString(SharedPreferencesConstants.IMEI, telephonyManager.getDeviceId());
-			editor.putString(SharedPreferencesConstants.IMSI, telephonyManager.getSubscriberId());
-			editor.putString(SharedPreferencesConstants.OPERATOR_NAME, telephonyManager.getNetworkOperatorName());
+			editor.putString(Constants.SP_IMEI, telephonyManager.getDeviceId());
+			editor.putString(Constants.SP_IMSI, telephonyManager.getSubscriberId());
+			editor.putString(Constants.SP_OPERATOR_NAME, telephonyManager.getNetworkOperatorName());
 			editor.commit();
 			
 			deviceData.setImei(telephonyManager.getDeviceId());
@@ -111,7 +117,7 @@ public class EmergencyHandlerService extends Service
 	{
 		Intent intent = new Intent();
 		intent.setClassName(getApplicationContext(),"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-		intent.setAction(DatabaseService.ACTION_DEVICE_DATA_CHANGED);
+		intent.setAction(Constants.ACTION_DEVICE_DATA_CHANGED);
 		startService(intent);
 	}
 	
@@ -119,16 +125,14 @@ public class EmergencyHandlerService extends Service
 	{
 		Intent intent = new Intent();
 		intent.setClassName(getApplicationContext(),"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-		intent.setAction(DatabaseService.ACTION_LOCATION_CHANGED);
+		intent.setAction(Constants.ACTION_LOCATION_CHANGED);
 		startService(intent);
 	}
 	
 	private void sendSms()
 	{
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		if(!(preferences.getString(SharedPreferencesConstants.PREFERRED_COMMUNICATION, "N.A.").equals("1")))
+		if(!(preferences.getString(Constants.SP_PREFERRED_COMMUNICATION, "N.A.").equals("1")))
 		{ 
-			Log.d("MyTag","Result sms sent");
 			Intent intent = new Intent();
 			intent.setClassName(getApplicationContext(),"hu.bute.daai.amorg.xg5ort.phoneguard.service.SmsSenderService");
 			startService(intent);

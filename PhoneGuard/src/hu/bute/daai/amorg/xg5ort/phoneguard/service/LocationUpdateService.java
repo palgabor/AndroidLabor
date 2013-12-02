@@ -1,5 +1,7 @@
 package hu.bute.daai.amorg.xg5ort.phoneguard.service;
-import hu.bute.daai.amorg.xg5ort.data.LocationData;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.Constants;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.LocationData;
+import hu.bute.daai.amorg.xg5ort.phoneguard.receiver.TimeTickReceiver;
 
 import java.io.IOException;
 import java.util.List;
@@ -8,6 +10,9 @@ import java.util.Locale;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -16,15 +21,16 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.NeighboringCellInfo;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
-import android.util.Log;
 
 public class LocationUpdateService extends Service
 {	
 	private LocationListener locationListener = null;
+	private TimeTickReceiver timeTickReceiver = null;
 	
 	@Override
 	public IBinder onBind(Intent intent)
@@ -35,6 +41,14 @@ public class LocationUpdateService extends Service
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
+		timeTickReceiver = new TimeTickReceiver();
+		registerReceiver(timeTickReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
+		
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		Editor editor = preferences.edit();
+		editor.putBoolean(Constants.SP_IS_LOCATION_UPDATE_SERVICE_RUNNING, true);
+		editor.commit();
+		
 		switchOnGps();
 		updateGsmLocation();
 		updateGpsLocation();
@@ -55,7 +69,6 @@ public class LocationUpdateService extends Service
         intent.addCategory(Intent.CATEGORY_ALTERNATIVE);
         intent.setData(Uri.parse("3"));
         sendBroadcast(intent);
-        Log.d("MyTag","GPS turned on");
 	}
 	
 	private void updateGsmLocation()
@@ -83,17 +96,6 @@ public class LocationUpdateService extends Service
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, locationListener);
 	}
 	
-	@Override
-	public void onDestroy()
-	{
-		super.onDestroy();
-		if(locationListener != null)
-		{
-			LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-			locationManager.removeUpdates(locationListener);
-		}
-	}
-	
 	private class GpsLocationListener implements LocationListener
 	{
 		@Override
@@ -108,7 +110,6 @@ public class LocationUpdateService extends Service
 			Geocoder geoCoder = new Geocoder(getApplicationContext(), Locale.getDefault());
 			try
 			{
-				Log.d("PhoneGuardTag","Address list.");
 				List<Address> addresses = geoCoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
 				if(addresses.size() > 0)
 				{
@@ -139,6 +140,23 @@ public class LocationUpdateService extends Service
 		{
 			
 		}
+	}
+	
+	@Override
+	public void onDestroy()
+	{
+		super.onDestroy();
+		if(locationListener != null)
+		{
+			LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+			locationManager.removeUpdates(locationListener);
+		}
+		unregisterReceiver(timeTickReceiver);
+		
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		Editor editor = preferences.edit();
+		editor.putBoolean(Constants.SP_IS_LOCATION_UPDATE_SERVICE_RUNNING, false);
+		editor.commit();
 	}
 }
 

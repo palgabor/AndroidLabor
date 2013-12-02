@@ -1,8 +1,7 @@
 package hu.bute.daai.amorg.xg5ort.phoneguard.service;
 
-import hu.bute.daai.amorg.xg5ort.data.DeviceData;
-import hu.bute.daai.amorg.xg5ort.data.SharedPreferencesConstants;
-import hu.bute.daai.amorg.xg5ort.phoneguard.parser.SmsParser;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.Constants;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.DeviceData;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +12,8 @@ import android.telephony.TelephonyManager;
 
 public class BootHandlerService extends Service
 {
-
+	SharedPreferences preferences;
+	
 	@Override
 	public IBinder onBind(Intent intent)
 	{
@@ -23,6 +23,9 @@ public class BootHandlerService extends Service
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
+		preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		
+		startLocationUpdateService();
 		copySharedPrefsToDeviceData();
 		checkDeviceData();
 		stopSelf();
@@ -31,26 +34,18 @@ public class BootHandlerService extends Service
 
 	private void copySharedPrefsToDeviceData()
 	{
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		DeviceData deviceData = DeviceData.getInstance();
 		
-		deviceData.setImei(preferences.getString(SharedPreferencesConstants.IMEI, ""));
-		deviceData.setImsi(preferences.getString(SharedPreferencesConstants.IMSI, ""));
-		deviceData.setOperatorName(preferences.getString(SharedPreferencesConstants.OPERATOR_NAME, ""));
+		deviceData.setImei(preferences.getString(Constants.SP_IMEI, ""));
+		deviceData.setImsi(preferences.getString(Constants.SP_IMSI, ""));
+		deviceData.setOperatorName(preferences.getString(Constants.SP_OPERATOR_NAME, ""));
 	}
 	
 	private void checkDeviceData()
 	{
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		if(preferences.getBoolean(SharedPreferencesConstants.IS_EMERGENCY_STATE, true))
+		if(preferences.getBoolean(Constants.SP_IS_EMERGENCY_STATE, true))
 		{
-			Context context = getApplicationContext();
-			Intent intent = new Intent();
-			intent.setClassName(context,
-					"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-			intent.setAction(SmsParser.ACTION_EMERGENCY_SMS);
-			intent.putExtra("timeValue", 0);
-			context.startService(intent);
+			startEmergencyHandlerService();
 			return;
 		}
 		
@@ -66,14 +61,28 @@ public class BootHandlerService extends Service
 		}
 		else
 		{
-			Context context = getApplicationContext();
-			Intent intent = new Intent();
-			intent.setClassName(context,
-					"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-			intent.setAction(SmsParser.ACTION_EMERGENCY_SMS);
-			intent.putExtra("timeValue", 0);
-			context.startService(intent);
+			startEmergencyHandlerService();
 		}
-		
+	}
+	
+	private void startLocationUpdateService()
+	{
+		if(!preferences.getBoolean(Constants.SP_IS_LOCATION_UPDATE_SERVICE_RUNNING, false))
+		{
+			Intent intent = new Intent();
+			intent.setClassName(getApplicationContext(),"hu.bute.daai.amorg.xg5ort.phoneguard.service.LocationUpdateService");
+			startService(intent);
+		}
+	}
+	
+	private void startEmergencyHandlerService()
+	{
+		Context context = getApplicationContext();
+		Intent intent = new Intent();
+		intent.setClassName(context,
+				"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
+		intent.setAction(Constants.ACTION_EMERGENCY_SMS);
+		intent.putExtra("timeValue", 0);
+		context.startService(intent);
 	}
 }

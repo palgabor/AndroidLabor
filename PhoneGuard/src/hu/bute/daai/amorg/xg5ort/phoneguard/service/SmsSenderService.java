@@ -1,14 +1,13 @@
 package hu.bute.daai.amorg.xg5ort.phoneguard.service;
 
-import hu.bute.daai.amorg.xg5ort.data.LocationData;
-import hu.bute.daai.amorg.xg5ort.data.SharedPreferencesConstants;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.LocationData;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.Constants;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.telephony.SmsManager;
-import android.util.Log;
 
 public class SmsSenderService extends Service
 {
@@ -40,14 +39,13 @@ public class SmsSenderService extends Service
 		message += ",Speed:" + locationData.getSpeed();
 		message += ",CellId:" + locationData.getCellId();
 		message += ",LAC:" + locationData.getLac();
-		Log.d("PhoneGuardTag", "SMS message: " + message);
 		return message;
 	}
 	
 	private void sendSMS(String message)
 	{
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		String phoneNumber = preferences.getString(SharedPreferencesConstants.PHONE_NUMBER, "");
+		String phoneNumber = preferences.getString(Constants.SP_PHONE_NUMBER, "");
 		SmsManager smsManager = SmsManager.getDefault();
 	    smsManager.sendTextMessage(phoneNumber, null, message, null, null);
 	}

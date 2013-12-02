@@ -1,4 +1,4 @@
-package hu.bute.daai.amorg.xg5ort.data;
+package hu.bute.daai.amorg.xg5ort.phoneguard.data;
 
 public class DeviceData
 {

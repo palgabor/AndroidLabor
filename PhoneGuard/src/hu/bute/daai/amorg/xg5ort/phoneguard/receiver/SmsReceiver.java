@@ -1,7 +1,7 @@
 package hu.bute.daai.amorg.xg5ort.phoneguard.receiver;
 
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.Constants;
 import hu.bute.daai.amorg.xg5ort.phoneguard.parser.SmsParser;
-import hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -46,7 +46,7 @@ public class SmsReceiver extends BroadcastReceiver
 	public int parse(SmsParser parser, String sms)
 	{
 		int result =  parser.parse(sms);
-		if(result == SmsParser.PHONE_GUARD_SMS)
+		if(result == Constants.PHONE_GUARD_SMS)
 		{
 			abortBroadcast();
 			result = parser.findAction(sms);
@@ -59,79 +59,79 @@ public class SmsReceiver extends BroadcastReceiver
 		Intent intent;
 		switch(result)
 		{
-			case SmsParser.NON_PHONE_GUARD_SMS: 
+			case Constants.NON_PHONE_GUARD_SMS: 
 				break;
 			
-			case SmsParser.ACTION_UNKNOWN:
+			case Constants.ACTION_UNKNOWN:
 				intent = new Intent();
 				intent.setClassName(context,
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-				intent.setAction(DatabaseService.ACTION_SMS_ARRIVED);
+				intent.setAction(Constants.ACTION_SMS_ARRIVED);
 				intent.putExtra("sender", msg.getOriginatingAddress());
 				intent.putExtra("time", msg.getTimestampMillis());
 				intent.putExtra("body", msg.getDisplayMessageBody());
-				intent.putExtra("action",SmsParser.ACTION_UNKNOWN_STR);		
+				intent.putExtra("action",Constants.ACTION_UNKNOWN_STR);		
 				context.startService(intent);
 				break;
 				
-			case SmsParser.BAD_PASSWORD: 
+			case Constants.BAD_PASSWORD: 
 				intent = new Intent();
 				intent.setClassName(context,
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-				intent.setAction(DatabaseService.ACTION_SMS_ARRIVED);
+				intent.setAction(Constants.ACTION_SMS_ARRIVED);
 				intent.putExtra("sender", msg.getOriginatingAddress());
 				intent.putExtra("time", msg.getTimestampMillis());
 				intent.putExtra("body", msg.getDisplayMessageBody());
-				intent.putExtra("action",SmsParser.BAD_PASSWORD_STR);
+				intent.putExtra("action",Constants.BAD_PASSWORD_STR);
 				context.startService(intent);
 				break;
 				
-			case SmsParser.ACTION_EMERGENCY_WITHOUT_TIME: 
+			case Constants.ACTION_EMERGENCY_WITHOUT_TIME: 
 				intent = new Intent();
 				intent.setClassName(context,
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-				intent.setAction(DatabaseService.ACTION_SMS_ARRIVED);
+				intent.setAction(Constants.ACTION_SMS_ARRIVED);
 				intent.putExtra("sender", msg.getOriginatingAddress());
 				intent.putExtra("time", msg.getTimestampMillis());
 				intent.putExtra("body", msg.getDisplayMessageBody());
-				intent.putExtra("action",SmsParser.ACTION_EMERGENCY_WITHOUT_TIME_STR);
+				intent.putExtra("action",Constants.ACTION_EMERGENCY_WITHOUT_TIME_STR);
 				context.startService(intent);
 				
 				intent = new Intent();
 				intent.setClassName(context,
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.setAction(SmsParser.ACTION_EMERGENCY_SMS);
+				intent.setAction(Constants.ACTION_EMERGENCY_SMS);
 				intent.putExtra("timeValue", 0);
 				context.startService(intent);
 				break;
 			
-			case SmsParser.ACTION_STOP_EMERGENCY:
+			case Constants.ACTION_STOP_EMERGENCY:
 				intent = new Intent();
 				intent.setClassName(context,
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-				intent.setAction(DatabaseService.ACTION_SMS_ARRIVED);
+				intent.setAction(Constants.ACTION_SMS_ARRIVED);
 				intent.putExtra("sender", msg.getOriginatingAddress());
 				intent.putExtra("time", msg.getTimestampMillis());
 				intent.putExtra("body", msg.getDisplayMessageBody());
-				intent.putExtra("action",SmsParser.ACTION_STOP_EMERGENCY_STR);
+				intent.putExtra("action",Constants.ACTION_STOP_EMERGENCY_STR);
 				context.startService(intent);
 				
 				intent = new Intent();
 				intent.setClassName(context,
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.setAction(SmsParser.ACTION_STOP_EMERGENCY_SMS);
+				intent.setAction(Constants.ACTION_STOP_EMERGENCY_SMS);
 				context.startService(intent);
 				break;
 			
-			case SmsParser.ACTION_SETTINGS:
+			case Constants.ACTION_SETTINGS:
 				intent = new Intent();
 				intent.setClassName(context,
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-				intent.setAction(DatabaseService.ACTION_SMS_ARRIVED);
+				intent.setAction(Constants.ACTION_SMS_ARRIVED);
 				intent.putExtra("sender", msg.getOriginatingAddress());
 				intent.putExtra("time", msg.getTimestampMillis());
 				intent.putExtra("body", msg.getDisplayMessageBody());
-				intent.putExtra("action",SmsParser.ACTION_SETTINGS_STR);
+				intent.putExtra("action",Constants.ACTION_SETTINGS_STR);
 				context.startService(intent);
 				
 				intent = new Intent();
@@ -142,23 +142,23 @@ public class SmsReceiver extends BroadcastReceiver
 				break;
 			
 			default:
-				if(result >= SmsParser.ACTION_EMERGENCY_TIME_BASE)
+				if(result >= Constants.ACTION_EMERGENCY_TIME_BASE)
 				{
 					intent = new Intent();
 					intent.setClassName(context,
 							"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-					intent.setAction(DatabaseService.ACTION_SMS_ARRIVED);
+					intent.setAction(Constants.ACTION_SMS_ARRIVED);
 					intent.putExtra("sender", msg.getOriginatingAddress());
 					intent.putExtra("time", msg.getTimestampMillis());
 					intent.putExtra("body", msg.getDisplayMessageBody());
-					intent.putExtra("action",SmsParser.ACTION_EMERGENCY_TIME_BASE_STR);
+					intent.putExtra("action",Constants.ACTION_EMERGENCY_TIME_BASE_STR);
 					context.startService(intent);
 					
 					intent = new Intent();
 					intent.setClassName(context,
 							"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-					intent.setAction(SmsParser.ACTION_EMERGENCY_SMS);
-					intent.putExtra("timeValue", result%SmsParser.ACTION_EMERGENCY_TIME_BASE);
+					intent.setAction(Constants.ACTION_EMERGENCY_SMS);
+					intent.putExtra("timeValue", result%Constants.ACTION_EMERGENCY_TIME_BASE);
 					context.startService(intent);
 				}
 		}

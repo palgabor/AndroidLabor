@@ -1,8 +1,8 @@
 package hu.bute.daai.amorg.xg5ort.phoneguard.service;
 
-import hu.bute.daai.amorg.xg5ort.data.DeviceData;
-import hu.bute.daai.amorg.xg5ort.data.LocationData;
-import hu.bute.daai.amorg.xg5ort.data.SharedPreferencesConstants;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.DeviceData;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.LocationData;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.Constants;
 
 import java.util.Calendar;
 import java.util.List;
@@ -11,17 +11,12 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.parse.Parse;
 import com.parse.ParseObject;
 
 public class DatabaseService extends Service
 {	
-	public static final String ACTION_SMS_ARRIVED = "SMS ARRIVED";
-	public static final String ACTION_LOCATION_CHANGED = "LOCATION CHANGED";
-	public static final String ACTION_DEVICE_DATA_CHANGED = "DEVICE DATA CHANGED";
-	
 	@Override
 	public IBinder onBind(Intent intent)
 	{
@@ -31,7 +26,7 @@ public class DatabaseService extends Service
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
-		if(intent.getAction().equals(ACTION_SMS_ARRIVED))
+		if(intent.getAction().equals(Constants.ACTION_SMS_ARRIVED))
 		{
 			Bundle extras = intent.getExtras();
 			
@@ -41,7 +36,7 @@ public class DatabaseService extends Service
 						  Calendar.getInstance().get(Calendar.DAY_OF_MONTH) + ". " + Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + ":" +
 						  Calendar.getInstance().get(Calendar.MINUTE) + ":" + Calendar.getInstance().get(Calendar.SECOND);
 			
-			Parse.initialize(this, SharedPreferencesConstants.PARSE_APPLICATION_ID, SharedPreferencesConstants.PARSE_CLIENT_ID);
+			Parse.initialize(this, Constants.PARSE_APPLICATION_ID, Constants.PARSE_CLIENT_ID);
 			ParseObject receivedSmsTable = new ParseObject("ReceivedSms");
 			
 			receivedSmsTable.put("Sender", extras.getString("sender"));
@@ -50,14 +45,13 @@ public class DatabaseService extends Service
 			receivedSmsTable.put("Action", extras.getString("action"));
 			
 			receivedSmsTable.saveInBackground();
-			Log.d("PhoneGuardTag","Arrived SMS saved to DB.");
 		}
 		
-		if(intent.getAction().equals(ACTION_LOCATION_CHANGED))
+		if(intent.getAction().equals(Constants.ACTION_LOCATION_CHANGED))
 		{
 			LocationData locationData = LocationData.getInstance();
 			
-			Parse.initialize(this, SharedPreferencesConstants.PARSE_APPLICATION_ID, SharedPreferencesConstants.PARSE_CLIENT_ID);
+			Parse.initialize(this, Constants.PARSE_APPLICATION_ID, Constants.PARSE_CLIENT_ID);
 			ParseObject locationTable = new ParseObject("Location");
 			
 			locationTable.put("Address", locationData.getAddress());
@@ -78,14 +72,13 @@ public class DatabaseService extends Service
 			}			
 			
 			locationTable.saveInBackground();
-			Log.d("PhoneGuardTag","Location change saved to DB.");
 		}
 		
-		if(intent.getAction().equals(ACTION_DEVICE_DATA_CHANGED))
+		if(intent.getAction().equals(Constants.ACTION_DEVICE_DATA_CHANGED))
 		{
 			DeviceData deviceData = DeviceData.getInstance();
 			
-			Parse.initialize(this, SharedPreferencesConstants.PARSE_APPLICATION_ID, SharedPreferencesConstants.PARSE_CLIENT_ID);
+			Parse.initialize(this, Constants.PARSE_APPLICATION_ID, Constants.PARSE_CLIENT_ID);
 			ParseObject deviceDataTable = new ParseObject("DeviceData");
 			
 			deviceDataTable.put("IMEInumber", deviceData.getImei());
@@ -93,7 +86,6 @@ public class DatabaseService extends Service
 			deviceDataTable.put("OperatorName", deviceData.getOperatorName());
 			
 			deviceDataTable.saveInBackground();
-			Log.d("PhoneGuardTag","Device data saved to DB.");
 		}
 		
 		stopSelf();

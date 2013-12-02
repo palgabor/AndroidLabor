@@ -1,10 +1,9 @@
 package hu.bute.daai.amorg.xg5ort.phoneguard.activity;
 
-import hu.bute.daai.amorg.xg5ort.data.DeviceData;
-import hu.bute.daai.amorg.xg5ort.data.LocationData;
-import hu.bute.daai.amorg.xg5ort.data.SharedPreferencesConstants;
 import hu.bute.daai.amorg.xg5ort.phoneguard.R;
-import hu.bute.daai.amorg.xg5ort.phoneguard.parser.SmsParser;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.Constants;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.DeviceData;
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.LocationData;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -49,7 +48,7 @@ public class TestActivity extends Activity
 				Intent intent = new Intent();
 				intent.setClassName(getApplicationContext(),
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.setAction(SmsParser.ACTION_EMERGENCY_SMS);
+				intent.setAction(Constants.ACTION_EMERGENCY_SMS);
 				intent.putExtra("timeValue", 0);
 				startService(intent);
 			}
@@ -61,7 +60,7 @@ public class TestActivity extends Activity
 				Intent intent = new Intent();
 				intent.setClassName(getApplicationContext(),
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.setAction(SmsParser.ACTION_EMERGENCY_SMS);
+				intent.setAction(Constants.ACTION_EMERGENCY_SMS);
 				intent.putExtra("timeValue", 10);
 				startService(intent);
 			}
@@ -73,7 +72,7 @@ public class TestActivity extends Activity
 				Intent intent = new Intent();
 				intent.setClassName(getApplicationContext(),
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.setAction(SmsParser.ACTION_EMERGENCY_SMS);
+				intent.setAction(Constants.ACTION_EMERGENCY_SMS);
 				intent.putExtra("timeValue", 30);
 				startService(intent);
 			}
@@ -85,7 +84,7 @@ public class TestActivity extends Activity
 				Intent intent = new Intent();
 				intent.setClassName(getApplicationContext(),
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.setAction(SmsParser.ACTION_EMERGENCY_SMS);
+				intent.setAction(Constants.ACTION_EMERGENCY_SMS);
 				intent.putExtra("timeValue", 60);
 				startService(intent);
 			}
@@ -97,7 +96,7 @@ public class TestActivity extends Activity
 				Intent intent = new Intent();
 				intent.setClassName(getApplicationContext(),
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.setAction(SmsParser.ACTION_STOP_EMERGENCY_SMS);
+				intent.setAction(Constants.ACTION_STOP_EMERGENCY_SMS);
 				startService(intent);
 			}
 		});
@@ -108,14 +107,14 @@ public class TestActivity extends Activity
 				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 				displayData.setText("");
 				displayData.setText("Shared preferences:\n");
-				displayData.append("Preferred communication: " + preferences.getString(SharedPreferencesConstants.PREFERRED_COMMUNICATION, "N.A.") + "\n");
-				displayData.append("Phone number: " + preferences.getString(SharedPreferencesConstants.PHONE_NUMBER, "N.A.") + "\n");
-				displayData.append("Password: " + preferences.getString(SharedPreferencesConstants.PASSWORD, "N.A.") + "\n");
-				displayData.append("Emergency frequency: " + preferences.getString(SharedPreferencesConstants.EMERGENCY_FREQUENCY, "N.A.") + "\n");
-				displayData.append("Is emergency state: " + String.valueOf(preferences.getBoolean(SharedPreferencesConstants.IS_EMERGENCY_STATE, false)) + "\n");
-				displayData.append("IMEI: " + preferences.getString(SharedPreferencesConstants.IMEI, "N.A.") + "\n");
-				displayData.append("IMSI: " + preferences.getString(SharedPreferencesConstants.IMSI, "N.A.") + "\n");
-				displayData.append("Operator: " + preferences.getString(SharedPreferencesConstants.OPERATOR_NAME, "N.A.") + "\n");
+				displayData.append("Preferred communication: " + preferences.getString(Constants.SP_PREFERRED_COMMUNICATION, "N.A.") + "\n");
+				displayData.append("Phone number: " + preferences.getString(Constants.SP_PHONE_NUMBER, "N.A.") + "\n");
+				displayData.append("Password: " + preferences.getString(Constants.SP_PASSWORD, "N.A.") + "\n");
+				displayData.append("Emergency frequency: " + preferences.getString(Constants.SP_EMERGENCY_FREQUENCY, "N.A.") + "\n");
+				displayData.append("Is emergency state: " + String.valueOf(preferences.getBoolean(Constants.SP_IS_EMERGENCY_STATE, false)) + "\n");
+				displayData.append("IMEI: " + preferences.getString(Constants.SP_IMEI, "N.A.") + "\n");
+				displayData.append("IMSI: " + preferences.getString(Constants.SP_IMSI, "N.A.") + "\n");
+				displayData.append("Operator: " + preferences.getString(Constants.SP_OPERATOR_NAME, "N.A.") + "\n");
 			}
 		});
 		
