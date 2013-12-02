@@ -48,7 +48,7 @@ public class TestActivity extends Activity
 				Intent intent = new Intent();
 				intent.setClassName(getApplicationContext(),
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.setAction(Constants.ACTION_EMERGENCY_SMS);
+				intent.setAction(Constants.ACTION_START_EMERGENCY_SMS);
 				intent.putExtra("timeValue", 0);
 				startService(intent);
 			}
@@ -60,7 +60,7 @@ public class TestActivity extends Activity
 				Intent intent = new Intent();
 				intent.setClassName(getApplicationContext(),
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.setAction(Constants.ACTION_EMERGENCY_SMS);
+				intent.setAction(Constants.ACTION_START_EMERGENCY_SMS);
 				intent.putExtra("timeValue", 10);
 				startService(intent);
 			}
@@ -72,7 +72,7 @@ public class TestActivity extends Activity
 				Intent intent = new Intent();
 				intent.setClassName(getApplicationContext(),
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.setAction(Constants.ACTION_EMERGENCY_SMS);
+				intent.setAction(Constants.ACTION_START_EMERGENCY_SMS);
 				intent.putExtra("timeValue", 30);
 				startService(intent);
 			}
@@ -84,7 +84,7 @@ public class TestActivity extends Activity
 				Intent intent = new Intent();
 				intent.setClassName(getApplicationContext(),
 						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.setAction(Constants.ACTION_EMERGENCY_SMS);
+				intent.setAction(Constants.ACTION_START_EMERGENCY_SMS);
 				intent.putExtra("timeValue", 60);
 				startService(intent);
 			}

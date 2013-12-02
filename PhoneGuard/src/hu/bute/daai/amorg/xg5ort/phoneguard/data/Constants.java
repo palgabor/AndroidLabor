@@ -21,10 +21,16 @@ public class Constants
 	public static final String SP_TIME_TICKS = "time_ticks";
 	public static final String SP_IS_LOCATION_UPDATE_SERVICE_RUNNING = "is location update service running";
 	
-	//EmergencyHandlerService starter actions
-	public static final String ACTION_EMERGENCY_SMS = "emer";
+	
+	//SMS strings
+	public static final String ACTION_START_EMERGENCY_SMS = "start emer";
 	public static final String ACTION_STOP_EMERGENCY_SMS = "stop emer";
 	public static final String ACTION_SETTINGS_SMS = "set";
+	public static final String ACTION_START_SMS_SMS = "start sms";
+	public static final String ACTION_STOP_SMS_SMS = "stop sms";
+	public static final String ACTION_START_INTERNET_SMS = "start internet";
+	public static final String ACTION_STOP_INTERNET_SMS = "stop internet";
+	
 	public static final String ACTION_TIME_TICK = "time tick";
 
 	
@@ -33,6 +39,12 @@ public class Constants
 	public static final String ACTION_LOCATION_CHANGED = "LOCATION CHANGED";
 	public static final String ACTION_DEVICE_DATA_CHANGED = "DEVICE DATA CHANGED";
 	
+	
+	//Preferred communication modes
+	public static final String COMMUNICATION_MODE_INTERNET = "1";
+	public static final String COMMUNICATION_MODE_SMS = "2";
+	public static final String COMMUNICATION_MODE_INTERNET_AND_SMS = "3";
+
 	
 	//SmsParser constants
 	public static final int NON_PHONE_GUARD_SMS = 1;
@@ -43,6 +55,10 @@ public class Constants
 	public static final int ACTION_STOP_EMERGENCY = 6;
 	public static final int ACTION_SETTINGS = 7;
 	public static final int ACTION_EMERGENCY_TIME_BASE = 1000;
+	public static final int ACTION_START_SMS = 8;
+	public static final int ACTION_STOP_SMS = 9;
+	public static final int ACTION_START_INTERNET = 10;
+	public static final int ACTION_STOP_INTERNET = 11;
 	
 	public static final String BAD_PASSWORD_STR = "Bad password";
 	public static final String ACTION_UNKNOWN_STR = "Action unknown";
@@ -50,6 +66,10 @@ public class Constants
 	public static final String ACTION_STOP_EMERGENCY_STR = "Emergency state stopped";
 	public static final String ACTION_SETTINGS_STR= "Settings";
 	public static final String ACTION_EMERGENCY_TIME_BASE_STR = "Emergency sate started with given time";
+	public static final String ACTION_START_SMS_STR = "Start sending SMS responses";
+	public static final String ACTION_STOP_SMS_STR = "Stop sending SMS responses";
+	public static final String ACTION_START_INTERNET_STR = "Start sending responses via internet";
+	public static final String ACTION_STOP_INTERNET_STR = "Start sending responses via internet";
 
 	public static final String SEPARATOR = "#";
 	public static final String SMS_STARTER = "[PG]";

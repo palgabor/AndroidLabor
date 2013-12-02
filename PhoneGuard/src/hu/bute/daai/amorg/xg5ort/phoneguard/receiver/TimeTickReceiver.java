@@ -1,6 +1,7 @@
 package hu.bute.daai.amorg.xg5ort.phoneguard.receiver;
 
 import hu.bute.daai.amorg.xg5ort.phoneguard.data.Constants;
+import hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -43,9 +44,7 @@ public class TimeTickReceiver extends BroadcastReceiver
 	
 	private void startEmergencyState(Context context)
 	{
-		Intent intent = new Intent();
-		intent.setClassName(context,
-				"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
+		Intent intent = new Intent(context,EmergencyHandlerService.class);
 		intent.setAction(Constants.ACTION_TIME_TICK);
 		context.startService(intent);
 	}

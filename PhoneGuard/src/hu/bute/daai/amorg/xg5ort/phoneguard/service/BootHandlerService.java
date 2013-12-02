@@ -81,7 +81,7 @@ public class BootHandlerService extends Service
 		Intent intent = new Intent();
 		intent.setClassName(context,
 				"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-		intent.setAction(Constants.ACTION_EMERGENCY_SMS);
+		intent.setAction(Constants.ACTION_START_EMERGENCY_SMS);
 		intent.putExtra("timeValue", 0);
 		context.startService(intent);
 	}

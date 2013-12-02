@@ -1,30 +1,34 @@
 package hu.bute.daai.amorg.xg5ort.phoneguard.receiver;
 
+import hu.bute.daai.amorg.xg5ort.phoneguard.activity.SettingsActivity;
 import hu.bute.daai.amorg.xg5ort.phoneguard.data.Constants;
 import hu.bute.daai.amorg.xg5ort.phoneguard.parser.SmsParser;
+import hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService;
+import hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.preference.PreferenceManager;
 import android.telephony.SmsMessage;
 
 public class SmsReceiver extends BroadcastReceiver
 {
 	SmsMessage msg = null;
+	Context context = null;
 	
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
+		this.context = context;
 		SmsParser parser = SmsParser.getInstance(context);
 		String sms = readSms(intent);
 		int result = parse(parser,sms);
-		switchAction(context, result);
-		//TODO [PG]#<password>#start sms
-		//TODO [PG]#<password>#stop sms
-		//TODO [PG]#<password>#start internet
-		//TODO [PG]#<password>#stop internet		
+		switchAction(result);	
 	}
 	
-	public String readSms(Intent intent)
+	private String readSms(Intent intent)
 	{
 		String body = "";
 		if(intent.getAction().equalsIgnoreCase("android.provider.Telephony.SMS_RECEIVED"))
@@ -43,7 +47,7 @@ public class SmsReceiver extends BroadcastReceiver
 		return body;
 	}
 	
-	public int parse(SmsParser parser, String sms)
+	private int parse(SmsParser parser, String sms)
 	{
 		int result =  parser.parse(sms);
 		if(result == Constants.PHONE_GUARD_SMS)
@@ -54,113 +58,138 @@ public class SmsReceiver extends BroadcastReceiver
 		return result;
 	}
 	
-	public void switchAction(Context context, int result)
+	private void switchAction(int result)
 	{
-		Intent intent;
 		switch(result)
 		{
 			case Constants.NON_PHONE_GUARD_SMS: 
 				break;
 			
 			case Constants.ACTION_UNKNOWN:
-				intent = new Intent();
-				intent.setClassName(context,
-						"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-				intent.setAction(Constants.ACTION_SMS_ARRIVED);
-				intent.putExtra("sender", msg.getOriginatingAddress());
-				intent.putExtra("time", msg.getTimestampMillis());
-				intent.putExtra("body", msg.getDisplayMessageBody());
-				intent.putExtra("action",Constants.ACTION_UNKNOWN_STR);		
-				context.startService(intent);
+				startDatabaseService(Constants.ACTION_UNKNOWN_STR);
 				break;
 				
 			case Constants.BAD_PASSWORD: 
-				intent = new Intent();
-				intent.setClassName(context,
-						"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-				intent.setAction(Constants.ACTION_SMS_ARRIVED);
-				intent.putExtra("sender", msg.getOriginatingAddress());
-				intent.putExtra("time", msg.getTimestampMillis());
-				intent.putExtra("body", msg.getDisplayMessageBody());
-				intent.putExtra("action",Constants.BAD_PASSWORD_STR);
-				context.startService(intent);
+				startDatabaseService(Constants.BAD_PASSWORD_STR);
 				break;
 				
 			case Constants.ACTION_EMERGENCY_WITHOUT_TIME: 
-				intent = new Intent();
-				intent.setClassName(context,
-						"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-				intent.setAction(Constants.ACTION_SMS_ARRIVED);
-				intent.putExtra("sender", msg.getOriginatingAddress());
-				intent.putExtra("time", msg.getTimestampMillis());
-				intent.putExtra("body", msg.getDisplayMessageBody());
-				intent.putExtra("action",Constants.ACTION_EMERGENCY_WITHOUT_TIME_STR);
-				context.startService(intent);
-				
-				intent = new Intent();
-				intent.setClassName(context,
-						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.setAction(Constants.ACTION_EMERGENCY_SMS);
-				intent.putExtra("timeValue", 0);
-				context.startService(intent);
+				startDatabaseService(Constants.ACTION_EMERGENCY_WITHOUT_TIME_STR);
+				startEmergencyHandlerService(Constants.ACTION_START_EMERGENCY_SMS,0);
 				break;
 			
 			case Constants.ACTION_STOP_EMERGENCY:
-				intent = new Intent();
-				intent.setClassName(context,
-						"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-				intent.setAction(Constants.ACTION_SMS_ARRIVED);
-				intent.putExtra("sender", msg.getOriginatingAddress());
-				intent.putExtra("time", msg.getTimestampMillis());
-				intent.putExtra("body", msg.getDisplayMessageBody());
-				intent.putExtra("action",Constants.ACTION_STOP_EMERGENCY_STR);
-				context.startService(intent);
-				
-				intent = new Intent();
-				intent.setClassName(context,
-						"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-				intent.setAction(Constants.ACTION_STOP_EMERGENCY_SMS);
-				context.startService(intent);
+				startDatabaseService(Constants.ACTION_STOP_EMERGENCY_SMS);
+				startEmergencyHandlerService(Constants.ACTION_STOP_EMERGENCY_SMS,0);
 				break;
 			
 			case Constants.ACTION_SETTINGS:
-				intent = new Intent();
-				intent.setClassName(context,
-						"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-				intent.setAction(Constants.ACTION_SMS_ARRIVED);
-				intent.putExtra("sender", msg.getOriginatingAddress());
-				intent.putExtra("time", msg.getTimestampMillis());
-				intent.putExtra("body", msg.getDisplayMessageBody());
-				intent.putExtra("action",Constants.ACTION_SETTINGS_STR);
-				context.startService(intent);
-				
-				intent = new Intent();
-				intent.setClassName(context,
-						"hu.bute.daai.amorg.xg5ort.phoneguard.activity.SettingsActivity");
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				context.startActivity(intent);
+				startDatabaseService(Constants.ACTION_SETTINGS_STR);
+				startSettingsActivity();
 				break;
-			
+				
+			case Constants.ACTION_START_SMS:
+				startDatabaseService(Constants.ACTION_START_SMS_STR);
+				setPreferredCommunicationMode(Constants.ACTION_START_SMS);
+				break;
+				
+			case Constants.ACTION_STOP_SMS:
+				startDatabaseService(Constants.ACTION_STOP_SMS_STR);
+				setPreferredCommunicationMode(Constants.ACTION_STOP_SMS);
+				break;
+				
+			case Constants.ACTION_START_INTERNET:
+				startDatabaseService(Constants.ACTION_START_INTERNET_STR);
+				setPreferredCommunicationMode(Constants.ACTION_START_INTERNET);
+				break;
+				
+			case Constants.ACTION_STOP_INTERNET:
+				startDatabaseService(Constants.ACTION_STOP_INTERNET_STR);
+				setPreferredCommunicationMode(Constants.ACTION_STOP_INTERNET);
+				break;
+				
 			default:
 				if(result >= Constants.ACTION_EMERGENCY_TIME_BASE)
 				{
-					intent = new Intent();
-					intent.setClassName(context,
-							"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-					intent.setAction(Constants.ACTION_SMS_ARRIVED);
-					intent.putExtra("sender", msg.getOriginatingAddress());
-					intent.putExtra("time", msg.getTimestampMillis());
-					intent.putExtra("body", msg.getDisplayMessageBody());
-					intent.putExtra("action",Constants.ACTION_EMERGENCY_TIME_BASE_STR);
-					context.startService(intent);
-					
-					intent = new Intent();
-					intent.setClassName(context,
-							"hu.bute.daai.amorg.xg5ort.phoneguard.service.EmergencyHandlerService");
-					intent.setAction(Constants.ACTION_EMERGENCY_SMS);
-					intent.putExtra("timeValue", result%Constants.ACTION_EMERGENCY_TIME_BASE);
-					context.startService(intent);
+					startDatabaseService(Constants.ACTION_EMERGENCY_TIME_BASE_STR);
+					startEmergencyHandlerService(Constants.ACTION_START_EMERGENCY_SMS,result%Constants.ACTION_EMERGENCY_TIME_BASE);
 				}
+		}
+	}
+	
+	private void startDatabaseService(String action)
+	{
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		String preferredCommunication = preferences.getString(Constants.SP_PREFERRED_COMMUNICATION, "N.A.");
+		if(preferredCommunication.equals(Constants.COMMUNICATION_MODE_INTERNET) ||
+		   preferredCommunication.equals(Constants.COMMUNICATION_MODE_INTERNET_AND_SMS))
+		{
+			Intent intent = new Intent(context,DatabaseService.class);
+			intent.setAction(Constants.ACTION_SMS_ARRIVED);
+			intent.putExtra("sender", msg.getOriginatingAddress());
+			intent.putExtra("time", msg.getTimestampMillis());
+			intent.putExtra("body", msg.getDisplayMessageBody());
+			intent.putExtra("action",action);		
+			context.startService(intent);
+		}
+	}
+	
+	private void startEmergencyHandlerService(String action, int timeValue)
+	{
+		Intent intent = new Intent(context,EmergencyHandlerService.class);
+		intent.setAction(action);
+		intent.putExtra("timeValue", timeValue);
+		context.startService(intent);
+	}
+	
+	private void startSettingsActivity()
+	{
+		Intent intent = new Intent(context,SettingsActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(intent);
+	}
+	
+	private void setPreferredCommunicationMode(int action)
+	{
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		String actionStr = preferences.getString(Constants.SP_PREFERRED_COMMUNICATION, "N.A.");
+		if(!actionStr.equals("N.A."))
+		{
+			int currentAction = Integer.parseInt(actionStr);
+			switch(action)
+			{
+				case Constants.ACTION_START_SMS:
+					if(currentAction == Integer.parseInt(Constants.COMMUNICATION_MODE_INTERNET))
+					{
+						Editor editor = preferences.edit();
+						editor.putString(Constants.SP_PREFERRED_COMMUNICATION, Constants.COMMUNICATION_MODE_INTERNET_AND_SMS);
+						editor.commit();
+					}
+					break;
+				case Constants.ACTION_START_INTERNET:
+					if(currentAction == Integer.parseInt(Constants.COMMUNICATION_MODE_SMS))
+					{
+						Editor editor = preferences.edit();
+						editor.putString(Constants.SP_PREFERRED_COMMUNICATION, Constants.COMMUNICATION_MODE_INTERNET_AND_SMS);
+						editor.commit();
+					}
+					break;
+				case Constants.ACTION_STOP_SMS:
+					if(currentAction == Integer.parseInt(Constants.COMMUNICATION_MODE_INTERNET_AND_SMS))
+					{
+						Editor editor = preferences.edit();
+						editor.putString(Constants.SP_PREFERRED_COMMUNICATION, Constants.COMMUNICATION_MODE_INTERNET);
+						editor.commit();
+					}
+					break;
+				case Constants.ACTION_STOP_INTERNET:
+					if(currentAction == Integer.parseInt(Constants.COMMUNICATION_MODE_INTERNET_AND_SMS))
+					{
+						Editor editor = preferences.edit();
+						editor.putString(Constants.SP_PREFERRED_COMMUNICATION, Constants.COMMUNICATION_MODE_SMS);
+						editor.commit();
+					}
+			}
 		}
 	}
 }

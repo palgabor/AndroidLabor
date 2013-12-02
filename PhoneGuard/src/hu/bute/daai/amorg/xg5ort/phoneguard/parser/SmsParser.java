@@ -64,13 +64,29 @@ public class SmsParser
 		{
 			return Constants.ACTION_STOP_EMERGENCY;
 		}
-		else if(body.contains(Constants.ACTION_EMERGENCY_SMS))
+		else if(body.contains(Constants.ACTION_START_EMERGENCY_SMS))
 		{
 			return getTimeValue(body);
 		}
 		else if(body.contains(Constants.ACTION_SETTINGS_SMS))
 		{
 			return Constants.ACTION_SETTINGS;
+		}
+		else if(body.contains(Constants.ACTION_START_SMS_SMS))
+		{
+			return Constants.ACTION_START_SMS;
+		}
+		else if(body.contains(Constants.ACTION_STOP_SMS_SMS))
+		{
+			return Constants.ACTION_STOP_SMS;
+		}
+		else if(body.contains(Constants.ACTION_START_INTERNET_SMS))
+		{
+			return Constants.ACTION_START_INTERNET;
+		}
+		else if(body.contains(Constants.ACTION_STOP_INTERNET_SMS))
+		{
+			return Constants.ACTION_STOP_INTERNET;
 		}
 		else
 		{
@@ -84,7 +100,7 @@ public class SmsParser
 		Matcher m = p.matcher(msg);
 		
 		if(msg.equals(Constants.SMS_STARTER + Constants.SEPARATOR + password + 
-						Constants.SEPARATOR + Constants.ACTION_EMERGENCY_SMS))
+						Constants.SEPARATOR + Constants.ACTION_START_EMERGENCY_SMS))
 		{
 			return Constants.ACTION_EMERGENCY_WITHOUT_TIME;
 		}else if(m.find() == false)

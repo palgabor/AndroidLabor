@@ -1,8 +1,8 @@
 package hu.bute.daai.amorg.xg5ort.phoneguard.service;
 
+import hu.bute.daai.amorg.xg5ort.phoneguard.data.Constants;
 import hu.bute.daai.amorg.xg5ort.phoneguard.data.DeviceData;
 import hu.bute.daai.amorg.xg5ort.phoneguard.data.LocationData;
-import hu.bute.daai.amorg.xg5ort.phoneguard.data.Constants;
 
 import java.util.Calendar;
 import java.util.List;
@@ -91,5 +91,4 @@ public class DatabaseService extends Service
 		stopSelf();
 		return START_REDELIVER_INTENT;
 	}
-
 }

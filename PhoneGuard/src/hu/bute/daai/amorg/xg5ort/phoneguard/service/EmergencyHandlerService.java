@@ -34,7 +34,7 @@ public class EmergencyHandlerService extends Service
 			
 			stopSelf();
 		}
-		else if(action.equals(Constants.ACTION_EMERGENCY_SMS))
+		else if(action.equals(Constants.ACTION_START_EMERGENCY_SMS))
 		{
 			refreshTime(intent);
 			startEmergencyState(intent);
@@ -107,34 +107,40 @@ public class EmergencyHandlerService extends Service
 	
 	private void fetchLocationData()
 	{
-		Intent intent = new Intent();
-		intent.setClassName(getApplicationContext(),"hu.bute.daai.amorg.xg5ort.phoneguard.service.LocationUpdateService");
-		startService(intent);
 		storeLocationDataToDB();
 	}
 
 	private void storeDeviceDataToDB()
 	{
-		Intent intent = new Intent();
-		intent.setClassName(getApplicationContext(),"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-		intent.setAction(Constants.ACTION_DEVICE_DATA_CHANGED);
-		startService(intent);
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		String preferredCommunication = preferences.getString(Constants.SP_PREFERRED_COMMUNICATION, "N.A.");
+		if(preferredCommunication.equals(Constants.COMMUNICATION_MODE_INTERNET) ||
+		   preferredCommunication.equals(Constants.COMMUNICATION_MODE_INTERNET_AND_SMS))
+		{
+			Intent intent = new Intent(getApplicationContext(),DatabaseService.class);
+			intent.setAction(Constants.ACTION_DEVICE_DATA_CHANGED);
+			startService(intent);
+		}
 	}
 	
 	private void storeLocationDataToDB()
 	{
-		Intent intent = new Intent();
-		intent.setClassName(getApplicationContext(),"hu.bute.daai.amorg.xg5ort.phoneguard.service.DatabaseService");
-		intent.setAction(Constants.ACTION_LOCATION_CHANGED);
-		startService(intent);
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		String preferredCommunication = preferences.getString(Constants.SP_PREFERRED_COMMUNICATION, "N.A.");
+		if(preferredCommunication.equals(Constants.COMMUNICATION_MODE_INTERNET) ||
+		   preferredCommunication.equals(Constants.COMMUNICATION_MODE_INTERNET_AND_SMS))
+		{
+			Intent intent = new Intent(getApplicationContext(),DatabaseService.class);
+			intent.setAction(Constants.ACTION_LOCATION_CHANGED);
+			startService(intent);
+		}
 	}
 	
 	private void sendSms()
 	{
-		if(!(preferences.getString(Constants.SP_PREFERRED_COMMUNICATION, "N.A.").equals("1")))
+		if(!(preferences.getString(Constants.SP_PREFERRED_COMMUNICATION, "N.A.").equals(Constants.COMMUNICATION_MODE_INTERNET)))
 		{ 
-			Intent intent = new Intent();
-			intent.setClassName(getApplicationContext(),"hu.bute.daai.amorg.xg5ort.phoneguard.service.SmsSenderService");
+			Intent intent = new Intent(getApplicationContext(),SmsSenderService.class);
 			startService(intent);
 		}
 	}
