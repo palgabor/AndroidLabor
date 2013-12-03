@@ -80,7 +80,7 @@ public class SmsReceiver extends BroadcastReceiver
 			
 			case Constants.ACTION_STOP_EMERGENCY:
 				startDatabaseService(Constants.ACTION_STOP_EMERGENCY_SMS);
-				startEmergencyHandlerService(Constants.ACTION_STOP_EMERGENCY_SMS,0);
+				startEmergencyHandlerService(Constants.ACTION_STOP_EMERGENCY_STR,0);
 				break;
 			
 			case Constants.ACTION_SETTINGS:
