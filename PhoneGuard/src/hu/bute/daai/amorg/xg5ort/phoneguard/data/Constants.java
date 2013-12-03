@@ -65,7 +65,7 @@ public class Constants
 	public static final String ACTION_EMERGENCY_WITHOUT_TIME_STR = "Emergency state started with default time";
 	public static final String ACTION_STOP_EMERGENCY_STR = "Emergency state stopped";
 	public static final String ACTION_SETTINGS_STR= "Settings";
-	public static final String ACTION_EMERGENCY_TIME_BASE_STR = "Emergency sate started with given time";
+	public static final String ACTION_EMERGENCY_TIME_BASE_STR = "Emergency state started with given time";
 	public static final String ACTION_START_SMS_STR = "Start sending SMS responses";
 	public static final String ACTION_STOP_SMS_STR = "Stop sending SMS responses";
 	public static final String ACTION_START_INTERNET_STR = "Start sending responses via internet";
