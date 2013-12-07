@@ -23,7 +23,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.telephony.CellLocation;
 import android.telephony.NeighboringCellInfo;
+import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
 
@@ -31,6 +33,8 @@ public class LocationUpdateService extends Service
 {	
 	private LocationListener locationListener = null;
 	private TimeTickReceiver timeTickReceiver = null;
+	private TelephonyManager telephonyManager = null;
+	private PhoneStateListener phoneStateListener = null;
 	
 	@Override
 	public IBinder onBind(Intent intent)
@@ -73,21 +77,26 @@ public class LocationUpdateService extends Service
 	
 	private void updateGsmLocation()
 	{
-		TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+		telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
 		final LocationData locationData = LocationData.getInstance();
 
-		GsmCellLocation location = (GsmCellLocation)telephonyManager.getCellLocation();
-		if(location != null)
+		phoneStateListener = new PhoneStateListener()
 		{
-			locationData.setCellId(location.getCid());
-			locationData.setLac(location.getLac());
-		}
-		
-		List<NeighboringCellInfo> cellInfo = telephonyManager.getNeighboringCellInfo();
-		for(NeighboringCellInfo info: cellInfo)
-		{
-			locationData.add(info.getCid());
-		}
+			@Override
+			public void onCellLocationChanged(CellLocation location)
+			{
+				GsmCellLocation loc = (GsmCellLocation)location;
+				locationData.setCellId(loc.getCid());
+				locationData.setLac(loc.getLac());
+				
+				List<NeighboringCellInfo> cellInfo = telephonyManager.getNeighboringCellInfo();
+				for(NeighboringCellInfo info: cellInfo)
+				{
+					locationData.add(info.getCid());
+				}
+			}
+		};
+		telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CELL_LOCATION);
 	}
 	private void updateGpsLocation()
 	{
@@ -152,6 +161,11 @@ public class LocationUpdateService extends Service
 			locationManager.removeUpdates(locationListener);
 		}
 		unregisterReceiver(timeTickReceiver);
+		
+		if(telephonyManager != null)
+		{
+			telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+		}
 		
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		Editor editor = preferences.edit();
