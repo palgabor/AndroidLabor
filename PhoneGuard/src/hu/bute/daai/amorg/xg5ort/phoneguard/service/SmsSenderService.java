@@ -20,9 +20,13 @@ public class SmsSenderService extends Service
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
-		String message = collectInformation();
-		sendSMS(message);
-
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		if(preferences.getBoolean(Constants.SP_IS_EMERGENCY_STATE, false))
+		{
+			String message = collectInformation();
+			sendSMS(message);
+		}
+		
 		stopSelf();
 		return START_REDELIVER_INTENT;
 	}
